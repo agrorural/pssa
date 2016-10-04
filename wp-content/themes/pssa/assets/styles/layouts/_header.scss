@@ -3,13 +3,11 @@ header[role="banner"]{
 	border-color: transparent;
 	border-width: 0;
 	margin-bottom: 0;
-	@media (min-width: $screen-sm-min){
-		padding-right: 15px;
-		padding-left: 15px;
-	}
+	@media (min-width: $screen-sm-min){	}
 	&.navbar-super{
 		background-color: $gray-light;
 		nav{
+			@include make-sm-column(12);
 			ul{
 				li{
 					a, p{
@@ -21,20 +19,18 @@ header[role="banner"]{
 					
 				}
 				&.navbar-left{
-					float: left;
-					margin-left: 15px;
 					li{
 						p{
 							margin-bottom: 0;
+							@media (max-width: $screen-xs-max){	
+								padding-left: 15px;
+								padding-right: 15px;
+							}
 						}
 					}
 				}
 				&.navbar-right{
-					float: right;
-					margin-right: 0;
-					form{
-						margin-right: 15px;
-					}
+
 				}
 			}
 		}
@@ -148,7 +144,6 @@ header[role="banner"]{
 		background-color: $green;
     	.navbar-header{
     		button{
-    			
     			i{
 					vertical-align: middle;
     			}
@@ -159,10 +154,10 @@ header[role="banner"]{
     		}
     	}
     	nav{
+    		@include make-sm-column(12);
     		ul{
     			@media (min-width: $screen-sm-min){
-					padding-right: 15px;
-					padding-left: 15px;
+
     			}
 
     			li{
@@ -177,6 +172,36 @@ header[role="banner"]{
 							background-color: transparent;
 						}
     				}
+    				
+    				&.dropdown{
+						ul.dropdown-menu{
+							padding-left: 0;
+							padding-right: 0;
+							li{
+								a{
+									@include font-family('opensans', 'regular');
+									@include font-size(13);
+									text-transform: none;
+									color: $gray;
+									&:hover{
+										color: $green;
+									}
+								}
+								&.active{
+									a{
+										background-color: transparent;
+										color: $green-dark;
+										border: 0;
+									}
+								}
+							}
+						}
+						&.open>a{
+							background-color: $green-dark;
+							color: $cream--light;
+						}
+    				}
+
     				&.active{
     					a{
     						color: $cream--light;
