@@ -1,0 +1,153 @@
+@font-face {
+    font-family: 'opensansextrabold';
+    src: url('../fonts/OpenSans-ExtraBold-webfont.eot');
+    src: url('../fonts/OpenSans-ExtraBold-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/OpenSans-ExtraBold-webfont.woff') format('woff'),
+         url('../fonts/OpenSans-ExtraBold-webfont.ttf') format('truetype'),
+         url('../fonts/OpenSans-ExtraBold-webfont.svg#opensansextrabold') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'opensansbold';
+    src: url('../fonts/OpenSans-Bold-webfont.eot');
+    src: url('../fonts/OpenSans-Bold-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/OpenSans-Bold-webfont.woff') format('woff'),
+         url('../fonts/OpenSans-Bold-webfont.ttf') format('truetype'),
+         url('../fonts/OpenSans-Bold-webfont.svg#opensansbold') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'opensanssemibold';
+    src: url('../fonts/OpenSans-Semibold-webfont.eot');
+    src: url('../fonts/OpenSans-Semibold-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/OpenSans-Semibold-webfont.woff') format('woff'),
+         url('../fonts/OpenSans-Semibold-webfont.ttf') format('truetype'),
+         url('../fonts/OpenSans-Semibold-webfont.svg#opensanssemibold') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'opensansregular';
+    src: url('../fonts/OpenSans-Regular-webfont.eot');
+    src: url('../fonts/OpenSans-Regular-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/OpenSans-Regular-webfont.woff') format('woff'),
+         url('../fonts/OpenSans-Regular-webfont.ttf') format('truetype'),
+         url('../fonts/OpenSans-Regular-webfont.svg#opensansregular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'opensanslight';
+    src: url('../fonts/OpenSans-Light-webfont.eot');
+    src: url('../fonts/OpenSans-Light-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/OpenSans-Light-webfont.woff') format('woff'),
+         url('../fonts/OpenSans-Light-webfont.ttf') format('truetype'),
+         url('../fonts/OpenSans-Light-webfont.svg#opensanslight') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* Mozilla based browsers */
+::-moz-selection {
+       background-color: $red;
+       color: $white;
+}
+
+/* Works in Safari */
+::selection {
+       background-color: $red;
+       color: $white;
+}
+
+html{
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
+body{
+	@include font-family();
+	background-color: $gray;
+    background-image: url('../images/body__bg.jpg');
+    background-repeat: no-repeat;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+
+	.wrap{
+		&.container{
+			background-color: $white;
+			margin-top: 30px;
+		}
+	}
+}
+
+a{
+    @include transition(all .5s ease);
+    &:hover{
+        text-decoration: none;
+    }
+}
+
+img{
+	border: 1px solid $gray-light;
+}
+
+.navbar{
+	min-height: 30px;
+}
+
+/* Post Format Icons */
+.fa {
+    &.aside{
+        &:before{
+            content: $fa-var-columns;
+        }
+    }
+    &.audio{
+        &:before{
+            content: $fa-var-music;
+        }
+    }
+    &.chat{
+        &:before{
+            content: $fa-var-commenting;
+        }
+    }
+    &.gallery{
+        &:before{
+            content: $fa-var-camera;
+        }
+    }
+    &.image{
+        &:before{
+            content: $fa-var-image;
+        }
+    }
+    &.link{
+        &:before{
+            content: $fa-var-link;
+        }
+    }
+    &.quote{
+        &:before{
+            content: $fa-var-quote-right;
+        }
+    }
+    &.status{
+        &:before{
+            content: $fa-var-smile-o;
+        }
+    }
+    &.video{
+        &:before{
+            content: $fa-var-video-camera;
+        }
+    }
+}

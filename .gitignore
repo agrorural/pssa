@@ -35,3 +35,9 @@ jspm_packages
 
 # Optional REPL history
 .node_repl_history
+
+# WordPress
+wp-config.php
+wp-content/uploads
+wp-content/themes/pssa/bower_components
+wp-content/themes/pssa/node_modules

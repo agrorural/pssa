@@ -1,0 +1,48 @@
+@mixin text-render(){
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-smoothing: antialiased;
+}
+
+@mixin opacity($opacity) {
+  opacity: $opacity;
+  $opacity-ie: $opacity * 100;
+  filter: alpha(opacity=$opacity-ie); //IE8
+}
+
+@mixin img-replace( $width: 100%, $height: 100% ){
+  display: block;
+    width: $width;
+    height: $height;
+    background-repeat: no-repeat;
+    
+    span{
+      position: relative;
+      display: block;
+      text-indent: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      margin: 0;
+      padding: 0;
+    }
+}
+
+@mixin border-radius($radius) {
+  border-radius: $radius;
+  -webkit-border-radius: $radius;
+  -moz-border-radius: $radius;
+  -ms-border-radius: $radius;
+  -o-border-radius: $radius;
+}
+
+@mixin font-family($font: 'opensans',$variation: 'regular'){
+  font-family: '#{$font}#{$variation}', sans-serif;
+  @include text-render();
+}
+
+@mixin font-size($sizeValue: 16, $line: $sizeValue * 1.5){
+  font-size: ($sizeValue * 1) + px;
+  line-height: ($line * 1) + px;
+  font-size: ($sizeValue / 10) + rem;
+  line-height: ($line / 10) + rem;
+}

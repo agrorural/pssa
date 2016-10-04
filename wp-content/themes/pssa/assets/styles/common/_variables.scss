@@ -1,0 +1,28 @@
+// Glyphicons font path
+$icon-font-path:        "../fonts/";
+
+// Grid settings
+$main-sm-columns:       12;
+$sidebar-sm-columns:    3;
+
+// Colors
+$brown:					#4c3627;
+$brown-light-custom: 	#79685d;
+$blue-sky:				#65cfe9;
+$green:					#00ae65;
+$green-dark:			darken($green, 5%);
+$red:					#f42431;
+$brand-primary:         $green;
+
+// Custom colors
+$white: 				#ffffff;
+$cream :				#f3cd9e;
+$cream--light:			lighten($cream, 15%);
+$maroon:				#4d0906;
+$maroon--dark:			#360000;
+$maroon--light:			#710000;
+
+$blue--fb:				#3b5998;
+$blue--tw:				#55acee;
+$blue--ln:				#0077b5;
+$red--yt:					#f42431;
