@@ -1,5 +1,27 @@
 .home{
 	section{
+		.section-container{
+			padding-top: 45px;
+			padding-bottom: 30px;
+			.section-title{
+				position: relative;
+				margin-bottom: 30px;
+				h3{
+					@include font-size(18);
+					padding-bottom: 15px;
+					text-transform: uppercase;
+				}
+				.line{
+					position: absolute;
+					bottom: 0;
+					left: 0;
+					height: 3px;
+					background-color: transparent;
+					width: 40px;
+				}
+			}
+		}
+
 		&.home__slider{
 			.slider--home{
 				@include gradient-horizontal( $blue-sky, $green, 0%, 100% );
@@ -183,7 +205,82 @@
 				}
 			}
 		}
-		
+		&.home__multimedia{
+			@include make-xs-column(12);
+			@include make-sm-column(12);
+			@include make-md-column(12);
+			@include make-lg-column(12);
+			@include gradient-horizontal( $blue-sky, $green, 0%, 100% );
+			.multimedia-container {
+				@extend .clearfix;
+				.multimedia-video, .multimedia-photo{
+					@include make-xs-column(12);
+					@include make-sm-column(6);
+					@include make-md-column(6);
+					@include make-lg-column(6);
+					.section-title{
+						h3{
+							color: $white;
+						}
+						.line{
+							background-color: $white;
+						}
+					}
+
+				}
+				.multimedia-video{
+					figure{
+						position: relative;
+						.multimedia-format{
+							position: absolute;
+							top: 0;
+							padding: 15px;
+							z-index: 10;
+							a{
+								@extend .btn;
+								@include button-variant($white, $brown, $brown);
+								@include border-radius(0);
+							}
+						}
+						@media (min-width: $screen-sm-min){
+							@include post-focus();
+							z-index: 0;
+						}
+						figcaption{
+							h3, p, a, time{
+								color: $white;
+							}
+
+							@media (min-width: $screen-sm-min){
+								position: absolute;
+								bottom: 0;
+								padding: 15px;
+								z-index: 10;
+							}
+						}
+					}
+				}
+				.multimedia-photo{
+					.photo-content{
+						.photo-img{
+							ul{
+								@extend .list-inline;
+								margin-left: 0;
+								li{
+									padding-left: 0;
+									padding-right: 0;
+								}
+							}
+						}
+						.photo-body{
+							h3, p, time, a{
+								color: $white;
+							}
+						}
+					}
+				}
+			}
+		}		
 	}
 	main, aside{
 		padding-top: 45px;

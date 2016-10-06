@@ -41,6 +41,10 @@ use Roots\Sage\Wrapper;
             <?php get_template_part('templates/sidebar', 'home'); ?>
           </aside><!-- /.sidebar -->
         <?php endif; ?>
+
+        <section class="home__multimedia">
+        <?php get_template_part('templates/multimedia'); ?>
+      </section>
       </div><!-- /.content -->
     </div><!-- /.wrap -->
     <?php

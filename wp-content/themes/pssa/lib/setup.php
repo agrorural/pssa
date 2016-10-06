@@ -29,7 +29,8 @@ function setup() {
   register_nav_menus([
     'primary_navigation' => __('Primary Navigation', 'sage'),
     'super_navigation' => __('Super Navigation', 'sage'),
-    'social_navigation' => __('Social Navigation', 'sage')
+    'social_navigation' => __('Social Navigation', 'sage'),
+    'apps_navigation' => __('Apps Navigation', 'sage')
   ]);
 
   // Enable post thumbnails
@@ -37,8 +38,9 @@ function setup() {
   // http://codex.wordpress.org/Function_Reference/set_post_thumbnail_size
   // http://codex.wordpress.org/Function_Reference/add_image_size
   add_theme_support('post-thumbnails');
-  add_image_size( 'main-slider-thumb', 700, 400, array( 'left', 'top' ) ); //300 pixels wide (and unlimited height)
-  add_image_size( 'news-feed-thumb', 84, 84, array( 'left', 'top' ) ); //300 pixels wide (and unlimited height)
+  add_image_size( 'main-slider-thumb', 700, 400, array( 'left', 'top' ) ); 
+  add_image_size( 'news-feed-thumb', 84, 84, array( 'left', 'top' ) );
+  add_image_size( 'home-video-thumb', 600, 300, array( 'left', 'top' ) ); 
 
   // Enable post formats
   // http://codex.wordpress.org/Post_Formats
