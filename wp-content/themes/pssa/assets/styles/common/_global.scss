@@ -84,8 +84,46 @@ body{
 		&.container{
 			background-color: $white;
 			margin-top: 30px;
+            .masshead{
+                @include make-row();
+                margin-bottom: 30px;
+                .masshead-container{
+                    padding: 80px 30px 15px;
+                    
+                    .page-header{
+                        border-bottom: 1px solid transparent;
+                        margin: 0 auto;
+                        h1{
+                            @include font-family('opensans', 'extrabold');
+                            @include text-focus();
+                        }
+                    }
+                }
+                &.no-image-bg{
+                     @include gradient-horizontal( $blue-sky, $green, 0%, 100% );
+                }
+            }
+            .content{
+                
+            }
 		}
 	}
+    &.single, &.page, &.blog, &.archive{
+        .wrap{
+            background-color: $gray-lighter;
+            .content{
+                @include make-row(0);
+            }
+        }
+    }
+    &.home{
+        .wrap{
+            background-color: $white;
+            .content{
+                @include make-row();
+            }
+        }
+    }
 }
 
 a{
@@ -101,6 +139,21 @@ img{
 
 .navbar{
 	min-height: 30px;
+}
+
+/* Articles */
+article{
+    min-height: 150px;
+    margin-bottom: 40px;
+    background-color: $white;
+    @include box-focus();
+    header, footer, .entry-content{
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+    header{
+        padding-top: 15px;
+    }
 }
 
 /* Post Format Icons */

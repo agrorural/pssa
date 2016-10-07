@@ -8,6 +8,8 @@ header[role="banner"]{
 		background-color: $gray-light;
 		nav{
 			@include make-sm-column(12);
+			padding-left: 30px;
+			padding-right: 30px; 
 			ul{
 				li{
 					a, p{
@@ -38,16 +40,21 @@ header[role="banner"]{
 
 	&.navbar-branding{
 		background-color: $white;
-		.navbar-brand{
-			margin: 0;
-			height: 100%;
-			a{
-				&.logo{
-					@include img-replace( 75px, 90px );
-					background-image: url('../images/logo--sm.png');
+		.navbar-header{
+			padding-left: 15px;
+			padding-right: 15px;
+			.navbar-brand{
+				margin: 0;
+				height: 100%;
+				a{
+					&.logo{
+						@include img-replace( 75px, 90px );
+						background-image: url('../images/logo--sm.png');
+					}
 				}
 			}
 		}
+		
 		nav{
 			.menu-menu-social-container{
 				ul{
@@ -155,6 +162,8 @@ header[role="banner"]{
     	}
     	nav{
     		@include make-sm-column(12);
+    		padding-left: 30px;
+    		padding-right: 30px;
     		ul{
     			@media (min-width: $screen-sm-min){
 

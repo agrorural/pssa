@@ -30,7 +30,8 @@ function setup() {
     'primary_navigation' => __('Primary Navigation', 'sage'),
     'super_navigation' => __('Super Navigation', 'sage'),
     'social_navigation' => __('Social Navigation', 'sage'),
-    'apps_navigation' => __('Apps Navigation', 'sage')
+    'apps_navigation' => __('Apps Navigation', 'sage'),
+    'docs_navigation' => __('Docs Navigation', 'sage')
   ]);
 
   // Enable post thumbnails
@@ -63,9 +64,9 @@ function widgets_init() {
   register_sidebar([
     'name'          => __('Primary', 'sage'),
     'id'            => 'sidebar-primary',
-    'before_widget' => '<div class="widget-title"><section class="widget %1$s %2$s">',
+    'before_widget' => '<section class="widget %1$s %2$s">',
     'after_widget'  => '</section>',
-    'before_title'  => '<h3><span class="line"></span></div>',
+    'before_title'  => '<h3>',
     'after_title'   => '</h3>'
   ]);
 

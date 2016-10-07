@@ -32,7 +32,7 @@
 					for ($i = 1; $i <= 4; $i++) {
 					    echo '<li>';
 					    echo '<a href=" '. get_the_permalink() .' ">';
-					    echo '<img src="' . $gallery[$i] . '" class="img-responsive" width="134 height="134">';
+					    echo '<img src="' . $gallery[$i] . '" class="img-responsive" width="131 height="131">';
 					    echo '</a>';
 					    echo '</li>';
 					}

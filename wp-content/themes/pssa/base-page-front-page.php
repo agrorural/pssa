@@ -20,7 +20,7 @@ use Roots\Sage\Wrapper;
         do_action('get_header');
         get_template_part('templates/header');
       ?>
-      <div class="content row">
+      <div class="content">
       <section class="home__slider">
 		    <?php get_template_part('templates/slider', 'home'); ?>
       </section>

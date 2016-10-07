@@ -1,0 +1,23 @@
+.sidebar{
+	.widget{
+		background-color: $white;
+		margin-bottom: 30px;
+		h3{
+			padding: 13px 20px 12px 20px;
+			margin: 0;
+			border-bottom: 1px solid $gray-lighter;
+			@include font-size(13);
+		}
+		ul{
+			@extend .list-unstyled;
+			li{
+				a{
+					display: block;
+					@include font-size(12);
+					padding: 12px 20px;
+    				border-bottom: 1px solid #e9eff3;
+				}
+			}
+		}
+	}
+}

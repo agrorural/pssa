@@ -20,7 +20,8 @@ use Roots\Sage\Wrapper;
         do_action('get_header');
         get_template_part('templates/header');
       ?>
-      <div class="content row">
+      <?php get_template_part('templates/masshead'); ?>
+      <div class="content">
         <main class="main">
           <?php include Wrapper\template_path(); ?>
         </main><!-- /.main -->
