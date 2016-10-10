@@ -10,6 +10,9 @@
 					@include font-size(18);
 					padding-bottom: 15px;
 					text-transform: uppercase;
+					a, small, i{
+						color: $white;
+					}
 				}
 				.line{
 					position: absolute;

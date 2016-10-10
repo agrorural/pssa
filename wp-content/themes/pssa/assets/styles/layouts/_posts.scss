@@ -1,0 +1,26 @@
+.single{
+	&.single-post{
+		.wrap{
+			.masshead{
+				.masshead-container{
+					.page-header{
+						margin-top: 25% !important;
+					}
+				}
+			}
+			.content{
+				main{
+					article{
+						background-color: transparent;
+						box-shadow: none;
+						.entry-content, .entry-summary, footer, header
+						{
+							padding-left: 0;
+							padding-right: 0;
+						}
+					}
+				}
+			}
+		}
+	}
+}

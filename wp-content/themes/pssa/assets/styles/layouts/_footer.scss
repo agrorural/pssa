@@ -1,24 +1,25 @@
 footer{
-	ul{
-		font-size: 12px;
-		@extend .list-unstyled;
-		li{
-			i{
-				color: $gray-lighter;
-			}
-
-			a{
-				display: block;
-				color: $gray-light;
-				padding-top: 5px;
-				padding-bottom: 5px; 
-				&:hover{
+	
+	&.content-info{
+		ul{
+			font-size: 12px;
+			@extend .list-unstyled;
+			li{
+				i{
 					color: $gray-lighter;
+				}
+
+				a{
+					display: block;
+					color: $gray-light;
+					padding-top: 5px;
+					padding-bottom: 5px; 
+					&:hover{
+						color: $gray-lighter;
+					}
 				}
 			}
 		}
-	}
-	&.content-info{
 		.container{
 			padding-top: 45px;
 			background-color: $gray-darker;
