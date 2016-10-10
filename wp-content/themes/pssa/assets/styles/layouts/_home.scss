@@ -179,6 +179,10 @@
 					@extend .media;
 					@extend .media-middle;
 					margin-top: 0;
+					margin-bottom: 30px;
+					@media (min-width: $screen-sm-min){
+						margin-bottom: 0;
+					}
 					.circle {
 						@extend .media-left;
 						img{
