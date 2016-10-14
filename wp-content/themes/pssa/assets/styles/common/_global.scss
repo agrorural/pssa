@@ -141,6 +141,7 @@ img{}
 .navbar{
 	min-height: 30px;
 }
+
 .multimedia-video, .multimedia-photo{
     .section-title{
         h3{
@@ -243,6 +244,34 @@ article{
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+/* Gallery */
+.gallery{
+    @include make-row();
+    margin-top: 30px;
+    margin-bottom: 15px;
+    .gallery-item{
+        .gallery-icon{
+            @include make-xs-column(6);
+            padding-bottom: 15px;
+            a{
+                display: block;
+                position: relative;
+                img{
+                    @extend .img-responsive;
+                    border: 1px solid $gray-light;
+                }
+            }
+        }
+    }
+    &.gallery-columns-3{
+        .gallery-item{
+            .gallery-icon{
+                @include make-sm-column(4);
             }
         }
     }
