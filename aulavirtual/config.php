@@ -17,7 +17,7 @@ $CFG->dboptions = array (
   'dbsocket' => '',
 );
 
-$CFG->wwwroot   = 'http://pssa.dev/aulavirtual';
+$CFG->wwwroot   = 'http://pssa.dev/pssa/aulavirtual';
 $CFG->dataroot  = '/var/www/pssa.dev/public_html/moodledata';
 $CFG->admin     = 'admin';
 

@@ -31,7 +31,8 @@ function setup() {
     'super_navigation' => __('Super Navigation', 'sage'),
     'social_navigation' => __('Social Navigation', 'sage'),
     'apps_navigation' => __('Apps Navigation', 'sage'),
-    'docs_navigation' => __('Docs Navigation', 'sage')
+    'docs_navigation' => __('Docs Navigation', 'sage'),
+    'prog_navigation' => __('Program Navigation', 'sage')
   ]);
 
   // Enable post thumbnails
