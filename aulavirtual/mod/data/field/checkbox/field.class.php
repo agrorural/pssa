@@ -25,12 +25,6 @@
 class data_field_checkbox extends data_field_base {
 
     var $type = 'checkbox';
-    /**
-     * priority for globalsearch indexing
-     *
-     * @var int
-     */
-    protected static $priority = self::LOW_PRIORITY;
 
     function display_add_field($recordid = 0, $formdata = null) {
         global $CFG, $DB, $OUTPUT;
@@ -248,22 +242,4 @@ class data_field_checkbox extends data_field_base {
         return $found;
     }
 
-    /**
-     * Returns the presentable string value for a field content.
-     *
-     * The returned string should be plain text.
-     *
-     * @param stdClass $content
-     * @return string
-     */
-    public static function get_content_value($content) {
-        $arr = explode('##', $content->content);
-
-        $strvalue = '';
-        foreach ($arr as $a) {
-            $strvalue .= $a . ' ';
-        }
-
-        return trim($strvalue, "\r\n ");
-    }
 }

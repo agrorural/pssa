@@ -851,7 +851,7 @@ class mod_quiz_renderer extends plugin_renderer_base {
         }
 
         $this->page->requires->js_call_amd('mod_quiz/preflightcheck', 'init',
-                array('.quizstartbuttondiv [type=submit]', get_string('startattempt', 'quiz'),
+                array('.quizstartbuttondiv input[type=submit]', get_string('startattempt', 'quiz'),
                        '#mod_quiz_preflight_form', $popupjsoptions));
 
         return $this->render($button) . $checkform;
@@ -1231,17 +1231,6 @@ class mod_quiz_renderer extends plugin_renderer_base {
         $url = new moodle_url('/mod/quiz/report.php', array(
                 'id' => $cm->id, 'mode' => quiz_report_default_report($context)));
         return html_writer::link($url, $summary);
-    }
-
-    /**
-     * Outputs a chart.
-     *
-     * @param \core\chart_base $chart The chart.
-     * @param string $title The title to display above the graph.
-     * @return string HTML fragment for the graph.
-     */
-    public function chart(\core\chart_base $chart, $title) {
-        return $this->heading($title, 3) . html_writer::tag('div', $this->render($chart), array('class' => 'graph'));
     }
 
     /**

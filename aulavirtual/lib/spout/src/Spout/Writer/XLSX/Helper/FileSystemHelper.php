@@ -284,7 +284,7 @@ EOD;
 EOD;
 
         /** @noinspection PhpUnnecessaryFullyQualifiedNameInspection */
-        $escaper = \Box\Spout\Common\Escaper\XLSX::getInstance();
+        $escaper = new \Box\Spout\Common\Escaper\XLSX();
 
         /** @var Worksheet $worksheet */
         foreach ($worksheets as $worksheet) {

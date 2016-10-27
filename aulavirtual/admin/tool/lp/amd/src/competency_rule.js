@@ -71,7 +71,6 @@ define(['jquery'], function($) {
         return null;
     };
 
-    // eslint-disable-next-line valid-jsdoc
     /**
      * Return the type of the module.
      *
@@ -153,7 +152,7 @@ define(['jquery'], function($) {
      * Trigger an event.
      *
      * @param {String} type The type of event.
-     * @param {Object} data The data to pass to the listeners.
+     * @param {Object} The data to pass to the listeners.
      * @method _trigger
      * @protected
      */

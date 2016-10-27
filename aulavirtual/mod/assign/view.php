@@ -44,8 +44,8 @@ $urlparams = array('id' => $id,
 $url = new moodle_url('/mod/assign/view.php', $urlparams);
 $PAGE->set_url($url);
 
-// Update module completion status.
-$assign->set_module_viewed();
+$completion=new completion_info($course);
+$completion->set_module_viewed($cm);
 
 // Get the assign class to
 // render the page.

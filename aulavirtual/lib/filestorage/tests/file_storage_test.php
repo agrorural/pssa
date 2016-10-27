@@ -236,7 +236,7 @@ class core_files_file_storage_testcase extends advanced_testcase {
         $this->assertInstanceOf('stored_file', $previewtinyicon);
         $this->assertEquals('6b9864ae1536a8eeef54e097319175a8be12f07c', $previewtinyicon->get_filename());
 
-        $this->expectException('file_exception');
+        $this->setExpectedException('file_exception');
         $fs->get_file_preview($file, 'amodewhichdoesntexist');
     }
 
@@ -300,8 +300,8 @@ class core_files_file_storage_testcase extends advanced_testcase {
         $this->assertEquals($contenthash, $file->get_contenthash());
 
         // Try break it.
-        $this->expectException('file_exception');
-        $this->expectExceptionMessage('Can not create file "1/core/unittest/0/test/newtest.txt" (file exists, cannot rename)');
+        $this->setExpectedException('file_exception',
+                'Can not create file "1/core/unittest/0/test/newtest.txt" (file exists, cannot rename)');
         // This shall throw exception.
         $originalfile->rename($newpath, $newname);
     }
@@ -621,14 +621,14 @@ class core_files_file_storage_testcase extends advanced_testcase {
     public function test_create_directory_contextid_negative() {
         $fs = get_file_storage();
 
-        $this->expectException('file_exception');
+        $this->setExpectedException('file_exception');
         $fs->create_directory(-1, 'core', 'unittest', 0, '/');
     }
 
     public function test_create_directory_contextid_invalid() {
         $fs = get_file_storage();
 
-        $this->expectException('file_exception');
+        $this->setExpectedException('file_exception');
         $fs->create_directory('not an int', 'core', 'unittest', 0, '/');
     }
 
@@ -636,7 +636,7 @@ class core_files_file_storage_testcase extends advanced_testcase {
         $fs = get_file_storage();
         $syscontext = context_system::instance();
 
-        $this->expectException('file_exception');
+        $this->setExpectedException('file_exception');
         $fs->create_directory($syscontext->id, 'bad/component', 'unittest', 0, '/');
     }
 
@@ -644,7 +644,7 @@ class core_files_file_storage_testcase extends advanced_testcase {
         $fs = get_file_storage();
         $syscontext = context_system::instance();
 
-        $this->expectException('file_exception');
+        $this->setExpectedException('file_exception');
         $fs->create_directory($syscontext->id, 'core', 'bad-filearea', 0, '/');
     }
 
@@ -652,7 +652,7 @@ class core_files_file_storage_testcase extends advanced_testcase {
         $fs = get_file_storage();
         $syscontext = context_system::instance();
 
-        $this->expectException('file_exception');
+        $this->setExpectedException('file_exception');
         $fs->create_directory($syscontext->id, 'core', 'unittest', -1, '/');
     }
 
@@ -660,7 +660,7 @@ class core_files_file_storage_testcase extends advanced_testcase {
         $fs = get_file_storage();
         $syscontext = context_system::instance();
 
-        $this->expectException('file_exception');
+        $this->setExpectedException('file_exception');
         $fs->create_directory($syscontext->id, 'core', 'unittest', 'notanint', '/');
     }
 
@@ -668,7 +668,7 @@ class core_files_file_storage_testcase extends advanced_testcase {
         $fs = get_file_storage();
         $syscontext = context_system::instance();
 
-        $this->expectException('file_exception');
+        $this->setExpectedException('file_exception');
         $fs->create_directory($syscontext->id, 'core', 'unittest', 0, '/not-with-trailing/or-leading-slash');
     }
 
@@ -1062,24 +1062,17 @@ class core_files_file_storage_testcase extends advanced_testcase {
         return $filerecord;
     }
 
-    /**
-     * @expectedException        file_exception
-     */
     public function test_create_file_from_storedfile_file_invalid() {
         $this->resetAfterTest(true);
 
         $filerecord = $this->generate_file_record();
 
         $fs = get_file_storage();
-
+        $this->setExpectedException('file_exception');
         // Create a file from a file id which doesn't exist.
         $fs->create_file_from_storedfile($filerecord,  9999);
     }
 
-    /**
-     * @expectedException        file_exception
-     * @expectedExceptionMessage Invalid contextid
-     */
     public function test_create_file_from_storedfile_contextid_invalid() {
         $this->resetAfterTest(true);
 
@@ -1092,13 +1085,10 @@ class core_files_file_storage_testcase extends advanced_testcase {
         $filerecord->filename = 'invalid.txt';
         $filerecord->contextid = 'invalid';
 
+        $this->setExpectedException('file_exception', 'Invalid contextid');
         $fs->create_file_from_storedfile($filerecord, $file1->get_id());
     }
 
-    /**
-     * @expectedException        file_exception
-     * @expectedExceptionMessage Invalid component
-     */
     public function test_create_file_from_storedfile_component_invalid() {
         $this->resetAfterTest(true);
 
@@ -1111,13 +1101,10 @@ class core_files_file_storage_testcase extends advanced_testcase {
         $filerecord->filename = 'invalid.txt';
         $filerecord->component = 'bad/component';
 
+        $this->setExpectedException('file_exception', 'Invalid component');
         $fs->create_file_from_storedfile($filerecord, $file1->get_id());
     }
 
-    /**
-     * @expectedException        file_exception
-     * @expectedExceptionMessage Invalid filearea
-     */
     public function test_create_file_from_storedfile_filearea_invalid() {
         $this->resetAfterTest(true);
 
@@ -1130,13 +1117,10 @@ class core_files_file_storage_testcase extends advanced_testcase {
         $filerecord->filename = 'invalid.txt';
         $filerecord->filearea = 'bad-filearea';
 
+        $this->setExpectedException('file_exception', 'Invalid filearea');
         $fs->create_file_from_storedfile($filerecord, $file1->get_id());
     }
 
-    /**
-     * @expectedException        file_exception
-     * @expectedExceptionMessage Invalid itemid
-     */
     public function test_create_file_from_storedfile_itemid_invalid() {
         $this->resetAfterTest(true);
 
@@ -1149,13 +1133,10 @@ class core_files_file_storage_testcase extends advanced_testcase {
         $filerecord->filename = 'invalid.txt';
         $filerecord->itemid = 'bad-itemid';
 
+        $this->setExpectedException('file_exception', 'Invalid itemid');
         $fs->create_file_from_storedfile($filerecord, $file1->get_id());
     }
 
-    /**
-     * @expectedException        file_exception
-     * @expectedExceptionMessage Invalid file path
-     */
     public function test_create_file_from_storedfile_filepath_invalid() {
         $this->resetAfterTest(true);
 
@@ -1168,13 +1149,10 @@ class core_files_file_storage_testcase extends advanced_testcase {
         $filerecord->filename = 'invalid.txt';
         $filerecord->filepath = 'a-/bad/-filepath';
 
+        $this->setExpectedException('file_exception', 'Invalid file path');
         $fs->create_file_from_storedfile($filerecord, $file1->get_id());
     }
 
-    /**
-     * @expectedException        file_exception
-     * @expectedExceptionMessage Invalid file name
-     */
     public function test_create_file_from_storedfile_filename_invalid() {
         $this->resetAfterTest(true);
 
@@ -1186,13 +1164,10 @@ class core_files_file_storage_testcase extends advanced_testcase {
 
         $filerecord->filename = '';
 
+        $this->setExpectedException('file_exception', 'Invalid file name');
         $fs->create_file_from_storedfile($filerecord, $file1->get_id());
     }
 
-    /**
-     * @expectedException        file_exception
-     * @expectedExceptionMessage Invalid file timecreated
-     */
     public function test_create_file_from_storedfile_timecreated_invalid() {
         $this->resetAfterTest(true);
 
@@ -1205,13 +1180,10 @@ class core_files_file_storage_testcase extends advanced_testcase {
         $filerecord->filename = 'invalid.txt';
         $filerecord->timecreated = 'today';
 
+        $this->setExpectedException('file_exception', 'Invalid file timecreated');
         $fs->create_file_from_storedfile($filerecord, $file1->get_id());
     }
 
-    /**
-     * @expectedException        file_exception
-     * @expectedExceptionMessage Invalid file timemodified
-     */
     public function test_create_file_from_storedfile_timemodified_invalid() {
         $this->resetAfterTest(true);
 
@@ -1224,13 +1196,10 @@ class core_files_file_storage_testcase extends advanced_testcase {
         $filerecord->filename = 'invalid.txt';
         $filerecord->timemodified  = 'today';
 
+        $this->setExpectedException('file_exception', 'Invalid file timemodified');
         $fs->create_file_from_storedfile($filerecord, $file1->get_id());
     }
 
-    /**
-     * @expectedException        stored_file_creation_exception
-     * @expectedExceptionMessage Can not create file "1/core/phpunit/0/testfile.txt"
-     */
     public function test_create_file_from_storedfile_duplicate() {
         $this->resetAfterTest(true);
 
@@ -1241,6 +1210,7 @@ class core_files_file_storage_testcase extends advanced_testcase {
         $this->assertInstanceOf('stored_file', $file1);
 
         // Creating a file validating unique constraint.
+        $this->setExpectedException('stored_file_creation_exception', 'Can not create file "1/core/phpunit/0/testfile.txt"');
         $fs->create_file_from_storedfile($filerecord, $file1->get_id());
     }
 
@@ -1278,10 +1248,6 @@ class core_files_file_storage_testcase extends advanced_testcase {
         $this->assertNotEquals($file3->get_timecreated(), $filerecord->timecreated);
     }
 
-    /**
-     * @expectedException        file_exception
-     * @expectedExceptionMessage Invalid contextid
-     */
     public function test_create_file_from_string_contextid_invalid() {
         $this->resetAfterTest(true);
 
@@ -1290,13 +1256,10 @@ class core_files_file_storage_testcase extends advanced_testcase {
 
         $filerecord->contextid = 'invalid';
 
+        $this->setExpectedException('file_exception', 'Invalid contextid');
         $file1 = $fs->create_file_from_string($filerecord, 'text contents');
     }
 
-    /**
-     * @expectedException        file_exception
-     * @expectedExceptionMessage Invalid component
-     */
     public function test_create_file_from_string_component_invalid() {
         $this->resetAfterTest(true);
 
@@ -1305,13 +1268,10 @@ class core_files_file_storage_testcase extends advanced_testcase {
 
         $filerecord->component = 'bad/component';
 
+        $this->setExpectedException('file_exception', 'Invalid component');
         $file1 = $fs->create_file_from_string($filerecord, 'text contents');
     }
 
-    /**
-     * @expectedException        file_exception
-     * @expectedExceptionMessage Invalid filearea
-     */
     public function test_create_file_from_string_filearea_invalid() {
         $this->resetAfterTest(true);
 
@@ -1320,13 +1280,10 @@ class core_files_file_storage_testcase extends advanced_testcase {
 
         $filerecord->filearea = 'bad-filearea';
 
+        $this->setExpectedException('file_exception', 'Invalid filearea');
         $file1 = $fs->create_file_from_string($filerecord, 'text contents');
     }
 
-    /**
-     * @expectedException        file_exception
-     * @expectedExceptionMessage Invalid itemid
-     */
     public function test_create_file_from_string_itemid_invalid() {
         $this->resetAfterTest(true);
 
@@ -1335,13 +1292,10 @@ class core_files_file_storage_testcase extends advanced_testcase {
 
         $filerecord->itemid = 'bad-itemid';
 
+        $this->setExpectedException('file_exception', 'Invalid itemid');
         $file1 = $fs->create_file_from_string($filerecord, 'text contents');
     }
 
-    /**
-     * @expectedException        file_exception
-     * @expectedExceptionMessage Invalid file path
-     */
     public function test_create_file_from_string_filepath_invalid() {
         $this->resetAfterTest(true);
 
@@ -1350,13 +1304,10 @@ class core_files_file_storage_testcase extends advanced_testcase {
 
         $filerecord->filepath = 'a-/bad/-filepath';
 
+        $this->setExpectedException('file_exception', 'Invalid file path');
         $file1 = $fs->create_file_from_string($filerecord, 'text contents');
     }
 
-    /**
-     * @expectedException        file_exception
-     * @expectedExceptionMessage Invalid file name
-     */
     public function test_create_file_from_string_filename_invalid() {
         $this->resetAfterTest(true);
 
@@ -1365,13 +1316,10 @@ class core_files_file_storage_testcase extends advanced_testcase {
 
         $filerecord->filename = '';
 
+        $this->setExpectedException('file_exception', 'Invalid file name');
         $file1 = $fs->create_file_from_string($filerecord, 'text contents');
     }
 
-    /**
-     * @expectedException        file_exception
-     * @expectedExceptionMessage Invalid file timecreated
-     */
     public function test_create_file_from_string_timecreated_invalid() {
         $this->resetAfterTest(true);
 
@@ -1380,15 +1328,10 @@ class core_files_file_storage_testcase extends advanced_testcase {
 
         $filerecord->timecreated = 'today';
 
-        $this->expectException('file_exception');
-        $this->expectExceptionMessage('Invalid file timecreated');
+        $this->setExpectedException('file_exception', 'Invalid file timecreated');
         $file1 = $fs->create_file_from_string($filerecord, 'text contents');
     }
 
-    /**
-     * @expectedException        file_exception
-     * @expectedExceptionMessage Invalid file timemodified
-     */
     public function test_create_file_from_string_timemodified_invalid() {
         $this->resetAfterTest(true);
 
@@ -1397,6 +1340,7 @@ class core_files_file_storage_testcase extends advanced_testcase {
 
         $filerecord->timemodified  = 'today';
 
+        $this->setExpectedException('file_exception', 'Invalid file timemodified');
         $file1 = $fs->create_file_from_string($filerecord, 'text contents');
     }
 
@@ -1409,14 +1353,10 @@ class core_files_file_storage_testcase extends advanced_testcase {
         $file1 = $fs->create_file_from_string($filerecord, 'text contents');
 
         // Creating a file validating unique constraint.
-        $this->expectException('stored_file_creation_exception');
+        $this->setExpectedException('stored_file_creation_exception');
         $file2 = $fs->create_file_from_string($filerecord, 'text contents');
     }
 
-    /**
-     * @expectedException        file_exception
-     * @expectedExceptionMessage Invalid contextid
-     */
     public function test_create_file_from_pathname_contextid_invalid() {
         global $CFG;
         $path = $CFG->dirroot.'/lib/filestorage/tests/fixtures/testimage.jpg';
@@ -1428,13 +1368,10 @@ class core_files_file_storage_testcase extends advanced_testcase {
 
         $filerecord->contextid = 'invalid';
 
+        $this->setExpectedException('file_exception', 'Invalid contextid');
         $file1 = $fs->create_file_from_pathname($filerecord, $path);
     }
 
-    /**
-     * @expectedException        file_exception
-     * @expectedExceptionMessage Invalid component
-     */
     public function test_create_file_from_pathname_component_invalid() {
         global $CFG;
         $path = $CFG->dirroot.'/lib/filestorage/tests/fixtures/testimage.jpg';
@@ -1446,13 +1383,10 @@ class core_files_file_storage_testcase extends advanced_testcase {
 
         $filerecord->component = 'bad/component';
 
+        $this->setExpectedException('file_exception', 'Invalid component');
         $file1 = $fs->create_file_from_pathname($filerecord, $path);
     }
 
-    /**
-     * @expectedException        file_exception
-     * @expectedExceptionMessage Invalid filearea
-     */
     public function test_create_file_from_pathname_filearea_invalid() {
         global $CFG;
         $path = $CFG->dirroot.'/lib/filestorage/tests/fixtures/testimage.jpg';
@@ -1464,13 +1398,10 @@ class core_files_file_storage_testcase extends advanced_testcase {
 
         $filerecord->filearea = 'bad-filearea';
 
+        $this->setExpectedException('file_exception', 'Invalid filearea');
         $file1 = $fs->create_file_from_pathname($filerecord, $path);
     }
 
-    /**
-     * @expectedException        file_exception
-     * @expectedExceptionMessage Invalid itemid
-     */
     public function test_create_file_from_pathname_itemid_invalid() {
         global $CFG;
         $path = $CFG->dirroot.'/lib/filestorage/tests/fixtures/testimage.jpg';
@@ -1482,13 +1413,10 @@ class core_files_file_storage_testcase extends advanced_testcase {
 
         $filerecord->itemid = 'bad-itemid';
 
-         $file1 = $fs->create_file_from_pathname($filerecord, $path);
+        $this->setExpectedException('file_exception', 'Invalid itemid');
+        $file1 = $fs->create_file_from_pathname($filerecord, $path);
     }
 
-    /**
-     * @expectedException        file_exception
-     * @expectedExceptionMessage Invalid file path
-     */
     public function test_create_file_from_pathname_filepath_invalid() {
         global $CFG;
         $path = $CFG->dirroot.'/lib/filestorage/tests/fixtures/testimage.jpg';
@@ -1500,13 +1428,10 @@ class core_files_file_storage_testcase extends advanced_testcase {
 
         $filerecord->filepath = 'a-/bad/-filepath';
 
+        $this->setExpectedException('file_exception', 'Invalid file path');
         $file1 = $fs->create_file_from_pathname($filerecord, $path);
     }
 
-    /**
-     * @expectedException        file_exception
-     * @expectedExceptionMessage Invalid file name
-     */
     public function test_create_file_from_pathname_filename_invalid() {
         global $CFG;
         $path = $CFG->dirroot.'/lib/filestorage/tests/fixtures/testimage.jpg';
@@ -1518,13 +1443,10 @@ class core_files_file_storage_testcase extends advanced_testcase {
 
         $filerecord->filename = '';
 
+        $this->setExpectedException('file_exception', 'Invalid file name');
         $file1 = $fs->create_file_from_pathname($filerecord, $path);
     }
 
-    /**
-     * @expectedException        file_exception
-     * @expectedExceptionMessage Invalid file timecreated
-     */
     public function test_create_file_from_pathname_timecreated_invalid() {
         global $CFG;
         $path = $CFG->dirroot.'/lib/filestorage/tests/fixtures/testimage.jpg';
@@ -1536,13 +1458,10 @@ class core_files_file_storage_testcase extends advanced_testcase {
 
         $filerecord->timecreated = 'today';
 
+        $this->setExpectedException('file_exception', 'Invalid file timecreated');
         $file1 = $fs->create_file_from_pathname($filerecord, $path);
     }
 
-    /**
-     * @expectedException        file_exception
-     * @expectedExceptionMessage Invalid file timemodified
-     */
     public function test_create_file_from_pathname_timemodified_invalid() {
         global $CFG;
         $path = $CFG->dirroot.'/lib/filestorage/tests/fixtures/testimage.jpg';
@@ -1554,13 +1473,10 @@ class core_files_file_storage_testcase extends advanced_testcase {
 
         $filerecord->timemodified  = 'today';
 
+        $this->setExpectedException('file_exception', 'Invalid file timemodified');
         $file1 = $fs->create_file_from_pathname($filerecord, $path);
     }
 
-    /**
-     * @expectedException        stored_file_creation_exception
-     * @expectedExceptionMessage Can not create file "1/core/phpunit/0/testfile.txt"
-     */
     public function test_create_file_from_pathname_duplicate_file() {
         global $CFG;
         $this->resetAfterTest(true);
@@ -1574,6 +1490,7 @@ class core_files_file_storage_testcase extends advanced_testcase {
         $this->assertInstanceOf('stored_file', $file1);
 
         // Creating a file validating unique constraint.
+        $this->setExpectedException('stored_file_creation_exception', 'Can not create file "1/core/phpunit/0/testfile.txt"');
         $file2 = $fs->create_file_from_pathname($filerecord, $path);
     }
 
@@ -1598,7 +1515,7 @@ class core_files_file_storage_testcase extends advanced_testcase {
         $this->assertInstanceOf('stored_file', $file);
         $this->assertFalse($file->is_external_file());
 
-        $this->expectException('coding_exception');
+        $this->setExpectedException('coding_exception');
         $file->delete_reference();
     }
 
@@ -1828,7 +1745,7 @@ class core_files_file_storage_testcase extends advanced_testcase {
         $newfilename = $fs->get_unused_filename($contextid, $component, $filearea, $itemid, $filepath, 'Hurray! (1).php');
         $this->assertEquals('Hurray! (3).php', $newfilename);
 
-        $this->expectException('coding_exception');
+        $this->setExpectedException('coding_exception');
         $fs->get_unused_filename($contextid, $component, $filearea, $itemid, $filepath, '');
     }
 }

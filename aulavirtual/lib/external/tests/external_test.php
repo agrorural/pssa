@@ -72,7 +72,7 @@ class core_external_testcase extends externallib_advanced_testcase {
         $this->assertSame($corestring, $returnedstring);
 
         // String with two parameter but one is invalid (not named).
-        $this->expectException('moodle_exception');
+        $this->setExpectedException('moodle_exception');
         $returnedstring = core_external::get_string('addservice', 'webservice', null,
                 array(array('value' => $service->name),
                       array('name' => 'id', 'value' => $service->id)));

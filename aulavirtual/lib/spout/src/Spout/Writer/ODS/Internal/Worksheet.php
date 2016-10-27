@@ -47,7 +47,7 @@ class Worksheet implements WorksheetInterface
     {
         $this->externalSheet = $externalSheet;
         /** @noinspection PhpUnnecessaryFullyQualifiedNameInspection */
-        $this->stringsEscaper = \Box\Spout\Common\Escaper\ODS::getInstance();
+        $this->stringsEscaper = new \Box\Spout\Common\Escaper\ODS();
         $this->worksheetFilePath = $worksheetFilesFolder . '/sheet' . $externalSheet->getIndex() . '.xml';
 
         $this->stringHelper = new StringHelper();
@@ -134,10 +134,6 @@ class Worksheet implements WorksheetInterface
      */
     public function addRow($dataRow, $style)
     {
-        // $dataRow can be an associative array. We need to transform
-        // it into a regular array, as we'll use the numeric indexes.
-        $dataRowWithNumericIndexes = array_values($dataRow);
-
         $styleIndex = ($style->getId() + 1); // 1-based
         $cellsCount = count($dataRow);
         $this->maxNumColumns = max($this->maxNumColumns, $cellsCount);
@@ -148,14 +144,12 @@ class Worksheet implements WorksheetInterface
         $nextCellIndex = 1;
 
         for ($i = 0; $i < $cellsCount; $i++) {
-            $currentCellValue = $dataRowWithNumericIndexes[$currentCellIndex];
+            $currentCellValue = $dataRow[$currentCellIndex];
 
             // Using isset here because it is way faster than array_key_exists...
-            if (!isset($dataRowWithNumericIndexes[$nextCellIndex]) ||
-                $currentCellValue !== $dataRowWithNumericIndexes[$nextCellIndex]) {
-
+            if (!isset($dataRow[$nextCellIndex]) || $currentCellValue !== $dataRow[$nextCellIndex]) {
                 $numTimesValueRepeated = ($nextCellIndex - $currentCellIndex);
-                $data .= $this->getCellXML($currentCellValue, $styleIndex, $numTimesValueRepeated);
+                $data .= $this->getCellContent($currentCellValue, $styleIndex, $numTimesValueRepeated);
 
                 $currentCellIndex = $nextCellIndex;
             }
@@ -183,7 +177,7 @@ class Worksheet implements WorksheetInterface
      * @return string The cell XML content
      * @throws \Box\Spout\Common\Exception\InvalidArgumentException If a cell value's type is not supported
      */
-    protected function getCellXML($cellValue, $styleIndex, $numTimesValueRepeated)
+    protected function getCellContent($cellValue, $styleIndex, $numTimesValueRepeated)
     {
         $data = '<table:table-cell table:style-name="ce' . $styleIndex . '"';
 
@@ -224,10 +218,6 @@ class Worksheet implements WorksheetInterface
      */
     public function close()
     {
-        if (!is_resource($this->sheetFilePointer)) {
-            return;
-        }
-
         fclose($this->sheetFilePointer);
     }
 }

@@ -95,15 +95,13 @@ class plan_page implements renderable, templatable {
 
             // Get the scale.
             $scaleid = $comp->get_scaleid();
-            $compscale = $comp->get_scale();
             if ($scaleid === null) {
                 $scaleid = $framework->get_scaleid();
-                $compscale = $framework->get_scale();
             }
-            if (!isset($scales[$scaleid])) {
-                $scales[$scaleid] = $compscale;
+            if (!isset($scales[$framework->get_scaleid()])) {
+                $scales[$framework->get_scaleid()] = $framework->get_scale();
             }
-            $scale = $scales[$scaleid];
+            $scale = $scales[$framework->get_scaleid()];
 
             // Prepare the data.
             $record = new stdClass();

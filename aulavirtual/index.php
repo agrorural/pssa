@@ -52,14 +52,12 @@ if ($CFG->forcelogin) {
     user_accesstime_log();
 }
 
-$hasmaintenanceaccess = has_capability('moodle/site:maintenanceaccess', context_system::instance());
+$hassiteconfig = has_capability('moodle/site:config', context_system::instance());
 
 // If the site is currently under maintenance, then print a message.
-if (!empty($CFG->maintenance_enabled) and !$hasmaintenanceaccess) {
+if (!empty($CFG->maintenance_enabled) and !$hassiteconfig) {
     print_maintenance_message();
 }
-
-$hassiteconfig = has_capability('moodle/site:config', context_system::instance());
 
 if ($hassiteconfig && moodle_needs_upgrading()) {
     redirect($CFG->wwwroot .'/'. $CFG->admin .'/index.php');

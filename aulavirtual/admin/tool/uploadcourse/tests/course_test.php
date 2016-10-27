@@ -35,21 +35,16 @@ global $CFG;
  */
 class tool_uploadcourse_course_testcase extends advanced_testcase {
 
-    /**
-     * @expectedException coding_exception
-     */
     public function test_proceed_without_prepare() {
         $this->resetAfterTest(true);
         $mode = tool_uploadcourse_processor::MODE_CREATE_NEW;
         $updatemode = tool_uploadcourse_processor::UPDATE_NOTHING;
         $data = array();
         $co = new tool_uploadcourse_course($mode, $updatemode, $data);
+        $this->setExpectedException('coding_exception');
         $co->proceed();
     }
 
-    /**
-     * @expectedException moodle_exception
-     */
     public function test_proceed_when_prepare_failed() {
         $this->resetAfterTest(true);
         $mode = tool_uploadcourse_processor::MODE_CREATE_NEW;
@@ -57,6 +52,7 @@ class tool_uploadcourse_course_testcase extends advanced_testcase {
         $data = array();
         $co = new tool_uploadcourse_course($mode, $updatemode, $data);
         $this->assertFalse($co->prepare());
+        $this->setExpectedException('moodle_exception');
         $co->proceed();
     }
 
@@ -68,7 +64,7 @@ class tool_uploadcourse_course_testcase extends advanced_testcase {
         $co = new tool_uploadcourse_course($mode, $updatemode, $data);
         $this->assertTrue($co->prepare());
         $co->proceed();
-        $this->expectException('coding_exception');
+        $this->setExpectedException('coding_exception');
         $co->proceed();
     }
 
@@ -244,6 +240,7 @@ class tool_uploadcourse_course_testcase extends advanced_testcase {
             'fullname' => 'Fullname',
             'category' => '1',
             'visible' => '0',
+            'startdate' => '8 June 1990',
             'idnumber' => '123abc',
             'summary' => 'Summary',
             'format' => 'weeks',
@@ -269,20 +266,6 @@ class tool_uploadcourse_course_testcase extends advanced_testcase {
             'enrolment_3_disable' => '1',
         );
 
-        // There should be a start date if there is a end date.
-        $data['enddate'] = '7 June 1990';
-        $co = new tool_uploadcourse_course($mode, $updatemode, $data);
-        $this->assertFalse($co->prepare());
-        $this->assertArrayHasKey('nostartdatenoenddate', $co->get_errors());
-
-        $data['startdate'] = '8 June 1990';
-        $co = new tool_uploadcourse_course($mode, $updatemode, $data);
-        $this->assertFalse($co->prepare());
-        $this->assertArrayHasKey('enddatebeforestartdate', $co->get_errors());
-
-        // They are correct now.
-        $data['enddate'] = '18 June 1990';
-
         $this->assertFalse($DB->record_exists('course', array('shortname' => 'c1')));
         $co = new tool_uploadcourse_course($mode, $updatemode, $data);
         $this->assertTrue($co->prepare());
@@ -295,7 +278,6 @@ class tool_uploadcourse_course_testcase extends advanced_testcase {
         $this->assertEquals($data['category'], $course->category);
         $this->assertEquals($data['visible'], $course->visible);
         $this->assertEquals(mktime(0, 0, 0, 6, 8, 1990), $course->startdate);
-        $this->assertEquals(mktime(0, 0, 0, 6, 18, 1990), $course->enddate);
         $this->assertEquals($data['idnumber'], $course->idnumber);
         $this->assertEquals($data['summary'], $course->summary);
         $this->assertEquals($data['format'], $course->format);
@@ -347,6 +329,7 @@ class tool_uploadcourse_course_testcase extends advanced_testcase {
             'fullname' => 'Fullname 2',
             'category' => $cat->id,
             'visible' => '1',
+            'startdate' => '11 June 1984',
             'idnumber' => 'changeidn',
             'summary' => 'Summary 2',
             'format' => 'topics',
@@ -373,21 +356,6 @@ class tool_uploadcourse_course_testcase extends advanced_testcase {
         );
 
         $this->assertTrue($DB->record_exists('course', array('shortname' => 'c1')));
-
-        $data['enddate'] = '31 June 1984';
-        // Previous start and end dates are 8 and 18 June 1990.
-        $co = new tool_uploadcourse_course($mode, $updatemode, $data);
-        $this->assertFalse($co->prepare());
-        $this->assertArrayHasKey('enddatebeforestartdate', $co->get_errors());
-
-        $data['startdate'] = '19 June 1990';
-        $co = new tool_uploadcourse_course($mode, $updatemode, $data);
-        $this->assertFalse($co->prepare());
-        $this->assertArrayHasKey('enddatebeforestartdate', $co->get_errors());
-
-        // They are correct now.
-        $data['startdate'] = '11 June 1984';
-
         $co = new tool_uploadcourse_course($mode, $updatemode, $data);
         $this->assertTrue($co->prepare());
         $co->proceed();
@@ -398,7 +366,6 @@ class tool_uploadcourse_course_testcase extends advanced_testcase {
         $this->assertEquals($data['category'], $course->category);
         $this->assertEquals($data['visible'], $course->visible);
         $this->assertEquals(mktime(0, 0, 0, 6, 11, 1984), $course->startdate);
-        $this->assertEquals(mktime(0, 0, 0, 6, 31, 1984), $course->enddate);
         $this->assertEquals($data['idnumber'], $course->idnumber);
         $this->assertEquals($data['summary'], $course->summary);
         $this->assertEquals($data['format'], $course->format);
@@ -453,8 +420,7 @@ class tool_uploadcourse_course_testcase extends advanced_testcase {
             'fullname' => 'Fullname',
             'category' => '1',
             'visible' => '0',
-            'startdate' => 644803200,
-            'enddate' => 645667200,
+            'startdate' => '8 June 1990',
             'idnumber' => '123abc',
             'summary' => 'Summary',
             'format' => 'weeks',
@@ -481,8 +447,7 @@ class tool_uploadcourse_course_testcase extends advanced_testcase {
         $this->assertEquals($defaultdata['fullname'], $course->fullname);
         $this->assertEquals($defaultdata['category'], $course->category);
         $this->assertEquals($defaultdata['visible'], $course->visible);
-        $this->assertEquals($defaultdata['startdate'], $course->startdate);
-        $this->assertEquals($defaultdata['enddate'], $course->enddate);
+        $this->assertEquals(mktime(0, 0, 0, 6, 8, 1990), $course->startdate);
         $this->assertEquals($defaultdata['idnumber'], $course->idnumber);
         $this->assertEquals($defaultdata['summary'], $course->summary);
         $this->assertEquals($defaultdata['format'], $course->format);
@@ -508,8 +473,7 @@ class tool_uploadcourse_course_testcase extends advanced_testcase {
             'fullname' => 'Fullname 2',
             'category' => $cat->id,
             'visible' => '1',
-            'startdate' => 455760000,
-            'enddate' => 457488000,
+            'startdate' => '11 June 1984',
             'idnumber' => 'changedid',
             'summary' => 'Summary 2',
             'format' => 'topics',
@@ -536,8 +500,7 @@ class tool_uploadcourse_course_testcase extends advanced_testcase {
         $this->assertEquals($defaultdata['fullname'], $course->fullname);
         $this->assertEquals($defaultdata['category'], $course->category);
         $this->assertEquals($defaultdata['visible'], $course->visible);
-        $this->assertEquals($defaultdata['startdate'], $course->startdate);
-        $this->assertEquals($defaultdata['enddate'], $course->enddate);
+        $this->assertEquals(mktime(0, 0, 0, 6, 11, 1984), $course->startdate);
         $this->assertEquals($defaultdata['idnumber'], $course->idnumber);
         $this->assertEquals($defaultdata['summary'], $course->summary);
         $this->assertEquals($defaultdata['format'], $course->format);

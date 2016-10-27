@@ -1420,17 +1420,7 @@ class assign_grading_table extends table_sql implements renderable {
      */
     public function get_sort_columns() {
         $result = parent::get_sort_columns();
-
-        $assignment = $this->assignment->get_instance();
-        if (empty($assignment->blindmarking)) {
-            $result = array_merge($result, array('userid' => SORT_ASC));
-        } else {
-            $result = array_merge($result, [
-                    'COALESCE(s.timecreated, '  . time()        . ')'   => SORT_ASC,
-                    'COALESCE(s.id, '           . PHP_INT_MAX   . ')'   => SORT_ASC,
-                    'um.id'                                             => SORT_ASC,
-                ]);
-        }
+        $result = array_merge($result, array('userid' => SORT_ASC));
         return $result;
     }
 

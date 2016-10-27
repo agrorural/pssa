@@ -161,9 +161,9 @@ EOD;
         $files = array();
 
         if ($assignment->get_instance()->teamsubmission) {
-            $submission = $assignment->get_group_submission($userid, 0, false, $attemptnumber);
+            $submission = $assignment->get_group_submission($userid, 0, false);
         } else {
-            $submission = $assignment->get_user_submission($userid, false, $attemptnumber);
+            $submission = $assignment->get_user_submission($userid, false);
         }
         $user = $DB->get_record('user', array('id' => $userid));
 
@@ -230,9 +230,9 @@ EOD;
 
         $grade = $assignment->get_user_grade($userid, true, $attemptnumber);
         if ($assignment->get_instance()->teamsubmission) {
-            $submission = $assignment->get_group_submission($userid, 0, false, $attemptnumber);
+            $submission = $assignment->get_group_submission($userid, 0, false);
         } else {
-            $submission = $assignment->get_user_submission($userid, false, $attemptnumber);
+            $submission = $assignment->get_user_submission($userid, false);
         }
 
         $contextid = $assignment->get_context()->id;
@@ -486,9 +486,9 @@ EOD;
         }
 
         if ($assignment->get_instance()->teamsubmission) {
-            $submission = $assignment->get_group_submission($userid, 0, false, $attemptnumber);
+            $submission = $assignment->get_group_submission($userid, 0, false);
         } else {
-            $submission = $assignment->get_user_submission($userid, false, $attemptnumber);
+            $submission = $assignment->get_user_submission($userid, false);
         }
         $grade = $assignment->get_user_grade($userid, true, $attemptnumber);
 

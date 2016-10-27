@@ -106,10 +106,7 @@ class behat_command {
 
         // If relative path then prefix relative path.
         if ($absolutepath) {
-            $pathprefix = testing_cli_argument_path('/');
-            if (!empty($pathprefix)) {
-                $pathprefix .= $separator;
-            }
+            $pathprefix = testing_cli_argument_path('/') . $separator;
         } else {
             $pathprefix = '';
         }

@@ -75,12 +75,10 @@
 
 {{#js}}
 require(['jquery'], function($) {
-    $('.tag_list .tagmorelink').click(function(e) {
-        e.preventDefault();
+    $('.tag_list .tagmorelink').click(function() {
         $(this).closest('.tag_list').removeClass('hideoverlimit');
     });
-    $('.tag_list .taglesslink').click(function(e) {
-        e.preventDefault();
+    $('.tag_list .taglesslink').click(function() {
         $(this).closest('.tag_list').addClass('hideoverlimit');
     });
 });

@@ -2196,13 +2196,10 @@ class api {
      */
     public static function reorder_template_competency($templateid, $competencyidfrom, $competencyidto) {
         static::require_enabled();
-        $template = new template($templateid);
-
         // First we do a permissions check.
-        if (!$template->can_manage()) {
-            throw new required_capability_exception($template->get_context(), 'moodle/competency:templatemanage',
-                'nopermissions', '');
-        }
+        $context = context_system::instance();
+
+        require_capability('moodle/competency:templatemanage', $context);
 
         $down = true;
         $matches = template_competency::get_records(array('templateid' => $templateid, 'competencyid' => $competencyidfrom));

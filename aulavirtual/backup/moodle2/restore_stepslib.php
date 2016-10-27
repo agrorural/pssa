@@ -1870,10 +1870,6 @@ class restore_course_structure_step extends restore_structure_step {
         $this->legacyrestrictmodules = !empty($data->restrictmodules);
 
         $data->startdate= $this->apply_date_offset($data->startdate);
-        if (isset($data->enddate)) {
-            $data->enddate = $this->apply_date_offset($data->enddate);
-        }
-
         if ($data->defaultgroupingid) {
             $data->defaultgroupingid = $this->get_mappingid('grouping', $data->defaultgroupingid);
         }

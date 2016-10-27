@@ -62,10 +62,9 @@ class tool_cohortroles_api_testcase extends advanced_testcase {
         cohort_add_member($this->cohort->id, $this->userassignover->id);
     }
 
-    /**
-     * @expectedException required_capability_exception
-     */
+
     public function test_create_cohort_role_assignment_without_permission() {
+        $this->setExpectedException('required_capability_exception');
         $this->setUser($this->userassignto);
         $params = (object) array(
             'userid' => $this->userassignto->id,
@@ -75,10 +74,8 @@ class tool_cohortroles_api_testcase extends advanced_testcase {
         api::create_cohort_role_assignment($params);
     }
 
-    /**
-     * @expectedException core_competency\invalid_persistent_exception
-     */
     public function test_create_cohort_role_assignment_with_invalid_data() {
+        $this->setExpectedException('core_competency\invalid_persistent_exception');
         $this->setAdminUser();
         $params = (object) array(
             'userid' => $this->userassignto->id,
@@ -102,9 +99,6 @@ class tool_cohortroles_api_testcase extends advanced_testcase {
         $this->assertEquals($result->get_cohortid(), $this->cohort->id);
     }
 
-    /**
-     * @expectedException required_capability_exception
-     */
     public function test_delete_cohort_role_assignment_without_permission() {
         $this->setAdminUser();
         $params = (object) array(
@@ -113,13 +107,11 @@ class tool_cohortroles_api_testcase extends advanced_testcase {
             'cohortid' => $this->cohort->id
         );
         $result = api::create_cohort_role_assignment($params);
+        $this->setExpectedException('required_capability_exception');
         $this->setUser($this->userassignto);
         api::delete_cohort_role_assignment($result->get_id());
     }
 
-    /**
-     * @expectedException dml_missing_record_exception
-     */
     public function test_delete_cohort_role_assignment_with_invalid_data() {
         $this->setAdminUser();
         $params = (object) array(
@@ -128,6 +120,7 @@ class tool_cohortroles_api_testcase extends advanced_testcase {
             'cohortid' => $this->cohort->id
         );
         $result = api::create_cohort_role_assignment($params);
+        $this->setExpectedException('dml_missing_record_exception');
         api::delete_cohort_role_assignment($result->get_id() + 1);
     }
 

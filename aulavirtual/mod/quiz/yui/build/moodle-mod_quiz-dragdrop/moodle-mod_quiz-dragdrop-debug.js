@@ -1,6 +1,5 @@
 YUI.add('moodle-mod_quiz-dragdrop', function (Y, NAME) {
 
-/* eslint-disable no-unused-vars */
 /**
  * Drag and Drop for Quiz sections and slots.
  *
@@ -20,7 +19,7 @@ var CSS = {
     LIGHTBOX: 'lightbox',
     MOVEDOWN: 'movedown',
     MOVEUP: 'moveup',
-    PAGE: 'page',
+    PAGE : 'page',
     PAGECONTENT: 'page-content',
     RIGHT: 'right',
     SECTION: 'slots',
@@ -50,7 +49,7 @@ Y.extend(DRAGSECTION, M.core.dragdrop, {
 
     initializer: function() {
         // Set group for parent class
-        this.groups = [CSS.SECTIONDRAGGABLE];
+        this.groups = [ CSS.SECTIONDRAGGABLE ];
         this.samenodeclass = 'section';
         this.parentnodeclass = 'slots';
 
@@ -229,9 +228,7 @@ Y.extend(DRAGSECTION, M.core.dragdrop, {
                             new M.core.ajaxException(responsetext);
                         }
                         M.mod_quiz.edit.process_sections(Y, sectionlist, responsetext, loopstart, loopend);
-                    } catch (e) {
-                        // Ignore.
-                    }
+                    } catch (e) {}
 
                     // Update all of the section IDs - first unset them, then set them
                     // to avoid duplicates in the DOM.
@@ -273,7 +270,7 @@ Y.extend(DRAGSECTION, M.core.dragdrop, {
                     lightbox.hide();
                 }
             },
-            context: this
+            context:this
         });
     }
 
@@ -299,7 +296,6 @@ M.mod_quiz = M.mod_quiz || {};
 M.mod_quiz.init_section_dragdrop = function(params) {
     new DRAGSECTION(params);
 };
-/* global SELECTOR */
 /**
  * Resource drag and drop.
  *
@@ -471,12 +467,12 @@ Y.extend(DRAGRESOURCE, M.core.dragdrop, {
                     window.location.reload(true);
                 }
             },
-            context: this
+            context:this
         });
     },
 
     global_drop_over: function(e) {
-        // Overriding parent method so we can stop the slots being dragged before the first page node.
+        //Overriding parent method so we can stop the slots being dragged before the first page node.
 
         // Check that drop object belong to correct group.
         if (!e.drop || !e.drop.inGroup(this.groups)) {

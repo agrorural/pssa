@@ -3,7 +3,6 @@
 namespace Box\Spout\Writer\ODS\Helper;
 
 use Box\Spout\Writer\Common\Helper\AbstractStyleHelper;
-use Box\Spout\Writer\Style\BorderPart;
 
 /**
  * Class StyleHelper
@@ -257,21 +256,9 @@ EOD;
             $content .= '<style:table-cell-properties fo:wrap-option="wrap" style:vertical-align="automatic"/>';
         }
 
-        if ($style->shouldApplyBorder()) {
-            $borderProperty = '<style:table-cell-properties %s />';
-            $borders = array_map(function (BorderPart $borderPart) {
-                return BorderHelper::serializeBorderPart($borderPart);
-            }, $style->getBorder()->getParts());
-            $content .= sprintf($borderProperty, implode(' ', $borders));
-        }
-
-        if ($style->shouldApplyBackgroundColor()) {
-            $content .= sprintf('
-                <style:table-cell-properties fo:background-color="#%s"/>', $style->getBackgroundColor());
-        }
-
         $content .= '</style:style>';
 
         return $content;
     }
+
 }

@@ -72,11 +72,9 @@ if (isguestuser($user)) {
 // User interests separated by commas.
 $user->interests = core_tag_tag::get_item_tags_array('core', 'user', $user->id);
 
-// Remote users cannot be edited. Note we have to perform the strict user_not_fully_set_up() check.
-// Otherwise the remote user could end up in endless loop between user/view.php and here.
-// Required custom fields are not supported in MNet environment anyway.
+// Remote users cannot be edited.
 if (is_mnet_remote_user($user)) {
-    if (user_not_fully_set_up($user, true)) {
+    if (user_not_fully_set_up($user)) {
         $hostwwwroot = $DB->get_field('mnet_host', 'wwwroot', array('id' => $user->mnethostid));
         print_error('usernotfullysetup', 'mnet', '', $hostwwwroot);
     }
@@ -238,7 +236,7 @@ if ($usernew = $userform->get_data()) {
 
     // Update user picture.
     if (empty($CFG->disableuserimages)) {
-        core_user::update_picture($usernew, $filemanageroptions);
+        useredit_update_picture($usernew, $userform, $filemanageroptions);
     }
 
     // Update mail bounces.

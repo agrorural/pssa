@@ -7,7 +7,6 @@
     text-align: center;
     list-style: none;
 }
-/*rtl:ignore*/
-#page-report-completion-index #completion-progress th svg {
+#page-report-completion-index.dir-rtl #completion-progress th svg {
     direction: ltr;
 }

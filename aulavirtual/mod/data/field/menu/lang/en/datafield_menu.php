@@ -25,4 +25,3 @@
  */
 
 $string['pluginname'] = 'Menu';
-$string['fieldtypelabel'] = 'Menu field';

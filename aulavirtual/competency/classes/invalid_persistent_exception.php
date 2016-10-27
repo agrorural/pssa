@@ -36,14 +36,11 @@ defined('MOODLE_INTERNAL') || die();
 class invalid_persistent_exception extends \moodle_exception {
 
     public function __construct(array $errors = array()) {
-        $forhumans = array();
         $debuginfo = array();
         foreach ($errors as $key => $message) {
             $debuginfo[] = "$key: $message";
-            $forhumans[] = $message;
         }
-        parent::__construct('invalidpersistenterror', 'core_competency', null,
-                implode(', ', $forhumans), implode(' - ', $debuginfo));
+        parent::__construct('invalidpersistent', 'core_competency', null, null, implode(' - ', $debuginfo));
     }
 
 }

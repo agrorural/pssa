@@ -283,7 +283,7 @@ M.util.show_confirm_dialog = function(e, args) {
             } else if ((targetancestor = target.ancestor('a')) !== null) {
                 window.location = targetancestor.get('href');
 
-            } else if (target.test('input') || target.test('button')) {
+            } else if (target.test('input')) {
                 targetform = target.ancestor('form', true);
                 if (!targetform) {
                     return;
@@ -299,7 +299,7 @@ M.util.show_confirm_dialog = function(e, args) {
 
             } else {
                 Y.log("Element of type " + target.get('tagName') +
-                        " is not supported by the M.util.show_confirm_dialog function. Use A, INPUT, BUTTON or FORM",
+                        " is not supported by the M.util.show_confirm_dialog function. Use A, INPUT, or FORM",
                         'warn', 'javascript-static');
             }
         }, this);
@@ -1300,34 +1300,30 @@ function stripHTML(str) {
 }
 
 function updateProgressBar(id, percent, msg, estimate) {
-    var event,
-        el = document.getElementById(id),
-        eventData = {};
-
-    if (!el) {
+    var progressIndicator = Y.one('#' + id);
+    if (!progressIndicator) {
         return;
     }
 
-    eventData.message = msg;
-    eventData.percent = percent;
-    eventData.estimate = estimate;
+    var progressBar = progressIndicator.one('.bar'),
+        statusIndicator = progressIndicator.one('h2'),
+        estimateIndicator = progressIndicator.one('p');
 
-    try {
-        event = new CustomEvent('update', {
-            bubbles: false,
-            cancelable: true,
-            detail: eventData
-        });
-    } catch (exception) {
-        if (!(exception instanceof TypeError)) {
-            throw exception;
+    statusIndicator.set('innerHTML', Y.Escape.html(msg));
+    progressBar.set('innerHTML', Y.Escape.html('' + percent + '%'));
+    if (percent === 100) {
+        progressIndicator.addClass('progress-success');
+        estimateIndicator.set('innerHTML', null);
+    } else {
+        if (estimate) {
+            estimateIndicator.set('innerHTML', Y.Escape.html(estimate));
+        } else {
+            estimateIndicator.set('innerHTML', null);
         }
-        event = document.createEvent('CustomEvent');
-        event.initCustomEvent('update', false, true, eventData);
-        event.prototype = window.Event.prototype;
+        progressIndicator.removeClass('progress-success');
     }
-
-    el.dispatchEvent(event);
+    progressBar.setAttribute('aria-valuenow', percent);
+    progressBar.setStyle('width', percent + '%');
 }
 
 // ===== Deprecated core Javascript functions for Moodle ====

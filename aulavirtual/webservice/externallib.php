@@ -92,8 +92,7 @@ class core_webservice_external extends external_api {
             'fullname' => fullname($USER),
             'lang' => current_language(),
             'userid' => $USER->id,
-            'userpictureurl' => $profileimageurl->out(false),
-            'siteid' => SITEID
+            'userpictureurl' => $profileimageurl->out(false)
         );
 
         // Retrieve the service and functions from the web service linked to the token
@@ -258,8 +257,7 @@ class core_webservice_external extends external_api {
                                             VALUE_OPTIONAL),
                 'userhomepage' => new external_value(PARAM_INT,
                                                         'the default home page for the user: 0 for the site home, 1 for dashboard',
-                                                        VALUE_OPTIONAL),
-                'siteid'  => new external_value(PARAM_INT, 'Site course ID', VALUE_OPTIONAL)
+                                                        VALUE_OPTIONAL)
             )
         );
     }

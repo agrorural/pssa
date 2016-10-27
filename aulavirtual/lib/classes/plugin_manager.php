@@ -1660,13 +1660,11 @@ class core_plugin_manager {
         $plugins = array(
             'qformat' => array('blackboard', 'learnwise'),
             'enrol' => array('authorize'),
-            'report' => array('search'),
-            'repository' => array('alfresco'),
             'tinymce' => array('dragmath'),
             'tool' => array('bloglevelupgrade', 'qeupgradehelper', 'timezoneimport'),
-            'theme' => array('afterburner', 'anomaly', 'arialist', 'base', 'binarius', 'boxxie', 'brick', 'canvas',
-                'formal_white', 'formfactor', 'fusion', 'leatherbound', 'magazine', 'mymobile', 'nimble', 'nonzero',
-                'overlay', 'serenity', 'sky_high', 'splash', 'standard', 'standardold'),
+            'theme' => array('mymobile', 'afterburner', 'anomaly', 'arialist', 'binarius', 'boxxie', 'brick', 'formal_white',
+                'formfactor', 'fusion', 'leatherbound', 'magazine', 'nimble', 'nonzero', 'overlay', 'serenity', 'sky_high',
+                'splash', 'standard', 'standardold'),
             'webservice' => array('amf'),
         );
 
@@ -1744,7 +1742,7 @@ class core_plugin_manager {
             ),
 
             'cachestore' => array(
-                'file', 'memcache', 'memcached', 'mongodb', 'session', 'static', 'apcu'
+                'file', 'memcache', 'memcached', 'mongodb', 'session', 'static'
             ),
 
             'calendartype' => array(
@@ -1866,18 +1864,18 @@ class core_plugin_manager {
             ),
 
             'quizaccess' => array(
-                'delaybetweenattempts', 'ipaddress', 'numattempts', 'offlineattempts', 'openclosedate',
+                'delaybetweenattempts', 'ipaddress', 'numattempts', 'openclosedate',
                 'password', 'safebrowser', 'securewindow', 'timelimit'
             ),
 
             'report' => array(
                 'backups', 'competency', 'completion', 'configlog', 'courseoverview', 'eventlist',
-                'log', 'loglive', 'outline', 'participation', 'progress', 'questioninstances',
+                'log', 'loglive', 'outline', 'participation', 'progress', 'questioninstances', 'search',
                 'security', 'stats', 'performance', 'usersessions'
             ),
 
             'repository' => array(
-                'areafiles', 'boxnet', 'coursefiles', 'dropbox', 'equella', 'filesystem',
+                'alfresco', 'areafiles', 'boxnet', 'coursefiles', 'dropbox', 'equella', 'filesystem',
                 'flickr', 'flickr_public', 'googledocs', 'local', 'merlot',
                 'picasa', 'recent', 'skydrive', 's3', 'upload', 'url', 'user', 'webdav',
                 'wikimedia', 'youtube'
@@ -1900,13 +1898,13 @@ class core_plugin_manager {
             ),
 
             'theme' => array(
-                'boost', 'bootstrapbase', 'clean', 'more'
+                'base', 'bootstrapbase', 'canvas', 'clean', 'more'
             ),
 
             'tool' => array(
                 'assignmentupgrade', 'availabilityconditions', 'behat', 'capability', 'cohortroles', 'customlang',
                 'dbtransfer', 'filetypes', 'generator', 'health', 'innodb', 'installaddon',
-                'langimport', 'log', 'lp', 'lpimportcsv', 'lpmigrate', 'messageinbound', 'mobile', 'multilangupgrade', 'monitor',
+                'langimport', 'log', 'lp', 'lpmigrate', 'messageinbound', 'mobile', 'multilangupgrade', 'monitor',
                 'phpunit', 'profiling', 'recyclebin', 'replace', 'spamcleaner', 'task', 'templatelibrary',
                 'unittest', 'uploadcourse', 'uploaduser', 'unsuproles', 'xmldb'
             ),

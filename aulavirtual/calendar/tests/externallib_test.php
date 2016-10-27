@@ -131,8 +131,6 @@ class core_calendar_externallib_testcase extends externallib_advanced_testcase {
 
     /**
      * Test delete_calendar_events
-     *
-     * @expectedException moodle_exception
      */
     public function test_delete_calendar_events() {
         global $DB, $USER;
@@ -249,7 +247,7 @@ class core_calendar_externallib_testcase extends externallib_advanced_testcase {
         $groupevent = $this->create_calendar_event('group', $USER->id, 'group', 0, time(), $record);
 
         $this->setGuestUser();
-
+        $this->setExpectedException('moodle_exception');
         $events = array(
             array('eventid' => $siteevent->id, 'repeat' => 0),
             array('eventid' => $courseevent->id, 'repeat' => 0),

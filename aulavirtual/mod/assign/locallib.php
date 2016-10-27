@@ -378,7 +378,7 @@ class assign {
      * @param string $subtype - either submission or feedback
      * @return array - The sorted list of plugins
      */
-    public function load_plugins($subtype) {
+    protected function load_plugins($subtype) {
         global $CFG;
         $result = array();
 
@@ -1564,7 +1564,6 @@ class assign {
      * @return array List of user records
      */
     public function list_participants($currentgroup, $idsonly) {
-        global $DB;
 
         if (empty($currentgroup)) {
             $currentgroup = 0;
@@ -1572,41 +1571,12 @@ class assign {
 
         $key = $this->context->id . '-' . $currentgroup . '-' . $this->show_only_active_users();
         if (!isset($this->participants[$key])) {
-            list($esql, $params) = get_enrolled_sql($this->context, 'mod/assign:submit', $currentgroup,
-                    $this->show_only_active_users());
-
-            $fields = 'u.*';
-            $orderby = 'u.lastname, u.firstname, u.id';
-            $additionaljoins = '';
-            $instance = $this->get_instance();
-            if (!empty($instance->blindmarking)) {
-                $additionaljoins .= " LEFT JOIN {assign_user_mapping} um
-                                  ON u.id = um.userid
-                                 AND um.assignment = :assignmentid1
-                           LEFT JOIN {assign_submission} s
-                                  ON u.id = s.userid
-                                 AND s.assignment = :assignmentid2
-                                 AND s.latest = 1
-                        ";
-                $params['assignmentid1'] = (int) $instance->id;
-                $params['assignmentid2'] = (int) $instance->id;
-                $fields .= ', um.id as recordid ';
-
-                // Sort by submission time first, then by um.id to sort reliably by the blind marking id.
-                // Note, different DBs have different ordering of NULL values.
-                // Therefore we coalesce the current time into the timecreated field, and the max possible integer into
-                // the ID field.
-                $orderby = "COALESCE(s.timecreated, " . time() . ") ASC, COALESCE(s.id, " . PHP_INT_MAX . ") ASC, um.id ASC";
+            $order = 'u.lastname, u.firstname, u.id';
+            if ($this->is_blind_marking()) {
+                $order = 'u.id';
             }
-
-            $sql = "SELECT $fields
-                      FROM {user} u
-                      JOIN ($esql) je ON je.id = u.id
-                           $additionaljoins
-                     WHERE u.deleted = 0
-                  ORDER BY $orderby";
-
-            $users = $DB->get_records_sql($sql, $params);
+            $users = get_enrolled_users($this->context, 'mod/assign:submit', $currentgroup, 'u.*', $order, null, null,
+                    $this->show_only_active_users());
 
             $cm = $this->get_course_module();
             $info = new \core_availability\info_module($cm);
@@ -2226,7 +2196,7 @@ class assign {
      * @return string
      */
     protected function view_grant_extension($mform) {
-        global $CFG;
+        global $DB, $CFG;
         require_once($CFG->dirroot . '/mod/assign/extensionform.php');
 
         $o = '';
@@ -2235,24 +2205,64 @@ class assign {
         $data->id = $this->get_course_module()->id;
 
         $formparams = array(
-            'instance' => $this->get_instance(),
-            'assign' => $this
+            'instance' => $this->get_instance()
         );
 
-        $users = optional_param('userid', 0, PARAM_INT);
-        if (!$users) {
-            $users = required_param('selectedusers', PARAM_SEQUENCE);
+        $extrauserfields = get_extra_user_fields($this->get_context());
+
+        if ($mform) {
+            $submitteddata = $mform->get_data();
+            $users = $submitteddata->selectedusers;
+            $userlist = explode(',', $users);
+
+            $data->selectedusers = $users;
+            $data->userid = 0;
+
+            $usershtml = '';
+            $usercount = 0;
+            foreach ($userlist as $userid) {
+                if ($usercount >= 5) {
+                    $usershtml .= get_string('moreusers', 'assign', count($userlist) - 5);
+                    break;
+                }
+                $user = $DB->get_record('user', array('id' => $userid), '*', MUST_EXIST);
+
+                $usershtml .= $this->get_renderer()->render(new assign_user_summary($user,
+                                                                    $this->get_course()->id,
+                                                                    has_capability('moodle/site:viewfullnames',
+                                                                    $this->get_course_context()),
+                                                                    $this->is_blind_marking(),
+                                                                    $this->get_uniqueid_for_user($user->id),
+                                                                    $extrauserfields,
+                                                                    !$this->is_active_user($userid)));
+                $usercount += 1;
+            }
+
+            $formparams['userscount'] = count($userlist);
+            $formparams['usershtml'] = $usershtml;
+
+        } else {
+            $userid = required_param('userid', PARAM_INT);
+            $user = $DB->get_record('user', array('id'=>$userid), '*', MUST_EXIST);
+            $flags = $this->get_user_flags($userid, false);
+
+            $data->userid = $user->id;
+            if ($flags) {
+                $data->extensionduedate = $flags->extensionduedate;
+            }
+
+            $usershtml = $this->get_renderer()->render(new assign_user_summary($user,
+                                                                $this->get_course()->id,
+                                                                has_capability('moodle/site:viewfullnames',
+                                                                $this->get_course_context()),
+                                                                $this->is_blind_marking(),
+                                                                $this->get_uniqueid_for_user($user->id),
+                                                                $extrauserfields,
+                                                                !$this->is_active_user($userid)));
+            $formparams['usershtml'] = $usershtml;
         }
-        $userlist = explode(',', $users);
 
-        $formparams['userlist'] = $userlist;
-
-        $data->selectedusers = $users;
-        $data->userid = 0;
-
-        if (empty($mform)) {
-            $mform = new mod_assign_extension_form(null, $formparams);
-        }
+        $mform = new mod_assign_extension_form(null, $formparams);
         $mform->set_data($data);
         $header = new assign_header($this->get_instance(),
                                     $this->get_context(),
@@ -3155,9 +3165,9 @@ class assign {
         if ($attemptnumber < 0 || $create) {
             // Make sure this grade matches the latest submission attempt.
             if ($this->get_instance()->teamsubmission) {
-                $submission = $this->get_group_submission($userid, 0, true, $attemptnumber);
+                $submission = $this->get_group_submission($userid, 0, true);
             } else {
-                $submission = $this->get_user_submission($userid, true, $attemptnumber);
+                $submission = $this->get_user_submission($userid, true);
             }
             if ($submission) {
                 $attemptnumber = $submission->attemptnumber;
@@ -4136,7 +4146,6 @@ class assign {
 
             if ($data->operation == 'grantextension') {
                 // Reset the form so the grant extension page will create the extension form.
-                $mform = null;
                 return 'grantextension';
             } else if ($data->operation == 'setmarkingworkflowstate') {
                 return 'viewbatchsetmarkingworkflowstate';
@@ -5793,16 +5802,10 @@ class assign {
         require_once($CFG->dirroot . '/mod/assign/extensionform.php');
         require_sesskey();
 
-        $users = optional_param('userid', 0, PARAM_INT);
-        if (!$users) {
-            $users = required_param('selectedusers', PARAM_SEQUENCE);
-        }
-        $userlist = explode(',', $users);
-
         $formparams = array(
             'instance' => $this->get_instance(),
-            'assign' => $this,
-            'userlist' => $userlist
+            'userscount' => 0,
+            'usershtml' => '',
         );
 
         $mform = new mod_assign_extension_form(null, $formparams);
@@ -6390,22 +6393,6 @@ class assign {
     }
 
     /**
-     * Determine if a new submission is empty or not
-     *
-     * @param stdClass $data Submission data
-     * @return bool
-     */
-    public function new_submission_empty($data) {
-        foreach ($this->submissionplugins as $plugin) {
-            if ($plugin->is_enabled() && $plugin->is_visible() && $plugin->allow_submissions() &&
-                    !$plugin->submission_is_empty($data)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
      * Save assignment submission for the current user.
      *
      * @param  stdClass $data
@@ -6436,11 +6423,6 @@ class assign {
             $submission = $this->get_group_submission($userid, 0, true);
         } else {
             $submission = $this->get_user_submission($userid, true);
-        }
-
-        if ($this->new_submission_empty($data)) {
-            $notices[] = get_string('submissionempty', 'mod_assign');
-            return false;
         }
 
         // Check that no one has modified the submission since we started looking at it.
@@ -6666,9 +6648,7 @@ class assign {
         }
 
         $userid = $useridlist[$rownum];
-        // We need to create a grade record matching this attempt number
-        // or the feedback plugin will have no way to know what is the correct attempt.
-        $grade = $this->get_user_grade($userid, true, $attemptnumber);
+        $grade = $this->get_user_grade($userid, false, $attemptnumber);
 
         $submission = null;
         if ($this->get_instance()->teamsubmission) {
@@ -8092,15 +8072,6 @@ class assign {
         return;
     }
 
-    /**
-     * Update the module completion status (set it viewed).
-     *
-     * @since Moodle 3.2
-     */
-    public function set_module_viewed() {
-        $completion = new completion_info($this->get_course());
-        $completion->set_module_viewed($this->get_course_module());
-    }
 }
 
 /**

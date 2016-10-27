@@ -24,7 +24,7 @@
 
 define('CLI_SCRIPT', true);
 
-require(__DIR__.'/../../config.php');
+require(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once($CFG->dirroot . '/mod/chat/lib.php');
 
 // Browser quirks.

@@ -47,8 +47,6 @@ list($options, $unrecognized) = cli_get_params(
         'help'     => false,
         'fromrun'  => 1,
         'torun'    => 0,
-        'run-with-theme' => false,
-        'optimize-runs' => '',
     ),
     array(
         'j' => 'parallel',
@@ -65,12 +63,10 @@ Usage:
   php init.php [--parallel=value [--maxruns=value] [--fromrun=value --torun=value]] [--help]
 
 Options:
--j, --parallel   Number of parallel behat run to initialise
--m, --maxruns    Max parallel processes to be executed at one time.
---fromrun        Execute run starting from (Used for parallel runs on different vms)
---torun          Execute run till (Used for parallel runs on different vms)
---optimize-runs  Split features with specified tags in all parallel runs.
---run-with-theme Run all core features with specified theme.
+-j, --parallel Number of parallel behat run to initialise
+-m, --maxruns  Max parallel processes to be executed at one time.
+--fromrun      Execute run starting from (Used for parallel runs on different vms)
+--torun        Execute run till (Used for parallel runs on different vms)
 
 -h, --help     Print out this help
 
@@ -87,23 +83,14 @@ if (!empty($options['help'])) {
 
 // Check which util file to call.
 $utilfile = 'util_single_run.php';
-$commandoptions = "";
+$paralleloption = "";
 // If parallel run then use utilparallel.
 if ($options['parallel'] && $options['parallel'] > 1) {
     $utilfile = 'util.php';
-    // Sanitize all input options, so they can be passed to util.
+    $paralleloption = "";
     foreach ($options as $option => $value) {
         if ($value) {
-            $commandoptions .= " --$option=\"$value\"";
-        }
-    }
-} else {
-    // Only sanitize options for single run.
-    $cmdoptionsforsinglerun = array('run-with-theme');
-
-    foreach ($cmdoptionsforsinglerun as $option) {
-        if (!empty($options[$option])) {
-            $commandoptions .= " --$option='$options[$option]'";
+            $paralleloption .= " --$option=\"$value\"";
         }
     }
 }
@@ -117,7 +104,7 @@ testing_update_composer_dependencies();
 
 // Check whether the behat test environment needs to be updated.
 chdir(__DIR__);
-exec("php $utilfile --diag $commandoptions", $output, $code);
+exec("php $utilfile --diag $paralleloption", $output, $code);
 
 if ($code == 0) {
     echo "Behat test environment already installed\n";
@@ -125,7 +112,7 @@ if ($code == 0) {
 } else if ($code == BEHAT_EXITCODE_INSTALL) {
     // Behat and dependencies are installed and we need to install the test site.
     chdir(__DIR__);
-    passthru("php $utilfile --install $commandoptions", $code);
+    passthru("php $utilfile --install $paralleloption", $code);
     if ($code != 0) {
         chdir($cwd);
         exit($code);
@@ -134,14 +121,14 @@ if ($code == 0) {
 } else if ($code == BEHAT_EXITCODE_REINSTALL) {
     // Test site data is outdated.
     chdir(__DIR__);
-    passthru("php $utilfile --drop $commandoptions", $code);
+    passthru("php $utilfile --drop $paralleloption", $code);
     if ($code != 0) {
         chdir($cwd);
         exit($code);
     }
 
     chdir(__DIR__);
-    passthru("php $utilfile --install $commandoptions", $code);
+    passthru("php $utilfile --install $paralleloption", $code);
     if ($code != 0) {
         chdir($cwd);
         exit($code);
@@ -156,7 +143,7 @@ if ($code == 0) {
 
 // Enable editing mode according to config.php vars.
 chdir(__DIR__);
-passthru("php $utilfile --enable $commandoptions", $code);
+passthru("php $utilfile --enable $paralleloption", $code);
 if ($code != 0) {
     echo "Error enabling site" . PHP_EOL;
     chdir($cwd);

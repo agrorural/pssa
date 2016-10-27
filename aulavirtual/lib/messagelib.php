@@ -24,7 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once(__DIR__ . '/../message/lib.php');
+require_once(dirname(dirname(__FILE__)) . '/message/lib.php');
 
 /**
  * Called when a message provider wants to send a message.
@@ -127,8 +127,6 @@ function message_send($eventdata) {
     $savemessage->fullmessagehtml   = $eventdata->fullmessagehtml;
     $savemessage->smallmessage      = $eventdata->smallmessage;
     $savemessage->notification      = $eventdata->notification;
-    $savemessage->eventtype         = $eventdata->name;
-    $savemessage->component         = $eventdata->component;
 
     if (!empty($eventdata->contexturl)) {
         $savemessage->contexturl = (string)$eventdata->contexturl;

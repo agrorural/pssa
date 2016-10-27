@@ -12,7 +12,6 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-/* global YUI */
 
 /**
  * @module moodle-editor_atto-plugin
@@ -33,7 +32,7 @@ var MENUTEMPLATE = '' +
             'tabindex="-1" ' +
             'type="button" ' +
             'title="{{title}}">' +
-            '<img class="icon" aria-hidden="true" role="presentation" width="16" height="16" ' +
+            '<img class="icon" aria-hidden="true" role="presentation" width="16" height="16" '+
                 'style="background-color:{{config.menuColor}};" src="{{config.iconurl}}" />' +
             '<img class="icon" aria-hidden="true" role="presentation" width="16" height="16" ' +
                 'src="{{image_url "t/expanded" "moodle"}}"/>' +
@@ -48,7 +47,7 @@ var DISABLED = 'disabled',
 
 function EditorPluginButtons() {}
 
-EditorPluginButtons.ATTRS = {
+EditorPluginButtons.ATTRS= {
 };
 
 EditorPluginButtons.prototype = {

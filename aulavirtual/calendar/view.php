@@ -38,12 +38,7 @@
 //                                                                         //
 /////////////////////////////////////////////////////////////////////////////
 
-/**
- * Display the calendar page.
- * @copyright 2003 Jon Papaioannou
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @package core_calendar
- */
+//  Display the calendar page.
 
 require_once('../config.php');
 require_once($CFG->dirroot.'/course/lib.php');
@@ -122,6 +117,7 @@ switch($view) {
 $PAGE->set_pagelayout('standard');
 $PAGE->set_title("$course->shortname: $strcalendar: $pagetitle");
 $PAGE->set_heading($COURSE->fullname);
+$PAGE->set_button(calendar_preferences_button($course));
 
 $renderer = $PAGE->get_renderer('core_calendar');
 $calendar->add_sidecalendar_blocks($renderer, true, $view);

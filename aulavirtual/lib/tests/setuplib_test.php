@@ -174,15 +174,16 @@ class core_setuplib_testcase extends advanced_testcase {
         global $CFG;
 
         // Start with a file instead of a directory.
-        $base = $CFG->tempdir . DIRECTORY_SEPARATOR . md5(microtime(true) + rand());
+        $base = $CFG->tempdir . DIRECTORY_SEPARATOR . md5(microtime() + rand());
         touch($base);
 
         // First the false test.
         $this->assertFalse(make_unique_writable_directory($base, false));
 
         // Now check for exception.
-        $this->expectException('invalid_dataroot_permissions');
-        $this->expectExceptionMessage($base . ' is not writable. Unable to create a unique directory within it.');
+        $this->setExpectedException('invalid_dataroot_permissions',
+                $base . ' is not writable. Unable to create a unique directory within it.'
+            );
         make_unique_writable_directory($base);
 
         unlink($base);

@@ -26,7 +26,6 @@
  */
 
 require_once('HTML/QuickForm/select.php');
-require_once('templatable_form_element.php');
 
 /**
  * select type form element
@@ -38,12 +37,7 @@ require_once('templatable_form_element.php');
  * @copyright 2006 Jamie Pratt <me@jamiep.org>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class MoodleQuickForm_select extends HTML_QuickForm_select implements templatable {
-
-    use templatable_form_element {
-        export_for_template as export_for_template_base;
-    }
-
+class MoodleQuickForm_select extends HTML_QuickForm_select{
     /** @var string html for help button, if empty then no help */
     var $_helpbutton='';
 
@@ -194,29 +188,5 @@ class MoodleQuickForm_select extends HTML_QuickForm_select implements templatabl
         } else {
             return $this->_prepareValue($cleaned[0], $assoc);
         }
-    }
-
-    public function export_for_template(renderer_base $output) {
-        $context = $this->export_for_template_base($output);
-
-        $options = [];
-        foreach ($this->_options as $option) {
-            if (is_array($this->_values) && in_array( (string) $option['attr']['value'], $this->_values)) {
-                $this->_updateAttrArray($option['attr'], ['selected' => 'selected']);
-            }
-            $o = [
-                'text' => $option['text'],
-                'value' => $option['attr']['value'],
-                'selected' => !empty($option['attr']['selected'])
-            ];
-            $options[] = $o;
-        }
-        $context['options'] = $options;
-
-        if ($this->getAttribute('multiple')) {
-            $context['name'] = $context['name'] . '[]';
-        }
-
-        return $context;
     }
 }

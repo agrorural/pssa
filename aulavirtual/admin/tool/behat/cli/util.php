@@ -56,13 +56,11 @@ list($options, $unrecognized) = cli_get_params(
         'updatesteps' => false,
         'fromrun'     => 1,
         'torun'       => 0,
-        'run-with-theme' => false,
-        'optimize-runs' => '',
     ),
     array(
         'h' => 'help',
         'j' => 'parallel',
-        'm' => 'maxruns',
+        'm' => 'maxruns'
     )
 );
 
@@ -80,11 +78,8 @@ Options:
 --disable      Disables test environment
 --diag         Get behat test environment status code
 --updatesteps  Update feature step file.
-
--j, --parallel   Number of parallel behat run operation
--m, --maxruns    Max parallel processes to be executed at one time.
---optimize-runs  Split features with specified tags in all parallel runs.
---run-with-theme Run all core features with specified theme.
+-j, --parallel Number of parallel behat run operation
+-m, --maxruns  Max parallel processes to be executed at one time.
 
 -h, --help     Print out this help
 
@@ -180,15 +175,12 @@ if ($options['diag'] || $options['enable'] || $options['disable']) {
 } else if ($options['updatesteps']) {
     // Rewrite config file to ensure we have all the features covered.
     if (empty($options['parallel'])) {
-        behat_config_manager::update_config_file('', true, '', $options['run-with-theme'], false, false);
+        behat_config_manager::update_config_file();
     } else {
         // Update config file, ensuring we have up-to-date behat.yml.
         for ($i = $options['fromrun']; $i <= $options['torun']; $i++) {
             $CFG->behatrunprocess = $i;
-
-            // Update config file for each run.
-            behat_config_manager::update_config_file('', true, $options['optimize-runs'], $options['run-with-theme'],
-                $options['parallel'], $i);
+            behat_config_manager::update_config_file();
         }
         unset($CFG->behatrunprocess);
     }
@@ -269,7 +261,7 @@ function commands_to_execute($options) {
         if ($options[$option]) {
             $extra .= " --$option";
             if ($value) {
-                $extra .= "=\"$value\"";
+                $extra .= "=$value";
             }
         }
     }

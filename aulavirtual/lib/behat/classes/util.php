@@ -215,14 +215,10 @@ class behat_util extends testing_util {
      *
      * Stores a file in dataroot/behat to allow Moodle to switch
      * to the test environment when using cli-server.
-     * @param bool $themesuitewithallfeatures if only theme specific features need to be included in the suite.
-     * @param string $tags comma separated tag, which will be given preference while distributing features in parallel run.
-     * @param int $parallelruns number of parallel runs.
-     * @param int $run current run.
      * @throws coding_exception
      * @return void
      */
-    public static function start_test_mode($themesuitewithallfeatures = false, $tags = '', $parallelruns = 0, $run = 0) {
+    public static function start_test_mode() {
         global $CFG;
 
         if (!defined('BEHAT_UTIL')) {
@@ -238,7 +234,7 @@ class behat_util extends testing_util {
         self::test_environment_problem();
 
         // Updates all the Moodle features and steps definitions.
-        behat_config_manager::update_config_file('', true, $tags, $themesuitewithallfeatures, $parallelruns, $run);
+        behat_config_manager::update_config_file();
 
         if (self::is_test_mode_enabled()) {
             return;
@@ -346,9 +342,5 @@ class behat_util extends testing_util {
 
         // Inform data generator.
         self::get_data_generator()->reset();
-
-        // Initialise $CFG with default values. This is needed for behat cli process, so we don't have modified
-        // $CFG values from the old run. @see set_config.
-        initialise_cfg();
     }
 }

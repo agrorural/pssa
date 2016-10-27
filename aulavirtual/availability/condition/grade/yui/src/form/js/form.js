@@ -84,7 +84,7 @@ M.availability_grade.form.getNode = function(json) {
     if (!M.availability_grade.form.addedEvents) {
         M.availability_grade.form.addedEvents = true;
 
-        var root = Y.one('.availability-field');
+        var root = Y.one('#fitem_id_availabilityconditionsjson');
         root.delegate('change', function() {
             // For the grade item, just update the form fields.
             M.core_availability.form.update();
@@ -149,8 +149,8 @@ M.availability_grade.form.fillErrors = function(errors, node) {
     }
 
     // Check numeric values.
-    if ((value.min !== undefined && typeof (value.min) === 'string') ||
-            (value.max !== undefined && typeof (value.max) === 'string')) {
+    if ((value.min !== undefined && typeof(value.min) === 'string') ||
+            (value.max !== undefined && typeof(value.max) === 'string')) {
         errors.push('availability_grade:error_invalidnumber');
     } else if (value.min !== undefined && value.max !== undefined &&
             value.min >= value.max) {

@@ -296,7 +296,7 @@ class core_phpunit_advanced_testcase extends advanced_testcase {
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('dml_exception', $e);
         }
-        $DB = $this->createMock(get_class($DB));
+        $DB = $this->getMock(get_class($DB));
         $this->assertNull($DB->get_record('pokus', array()));
         // Rest continues after reset.
     }
@@ -358,7 +358,7 @@ class core_phpunit_advanced_testcase extends advanced_testcase {
 
         $this->setCurrentTimeStart();
         $this->assertTimeCurrent(time());
-        $this->waitForSecond();
+        sleep(2);
         $this->assertTimeCurrent(time());
         $this->assertTimeCurrent(time()-1);
 

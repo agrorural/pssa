@@ -93,7 +93,7 @@ test
         $dividercount += 2;
 
         // The basic entry count will additionally include the wrapper menu, Dashboard, Profile, and the Logout link.
-        $entrycount += 3;
+        $entrycount += 4;
 
         $output = $OUTPUT->user_menu($USER);
         preg_match_all('/<a [^>]+role="menuitem"[^>]+>/', $output, $results);

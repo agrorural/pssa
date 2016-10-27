@@ -31,24 +31,6 @@ $functions = array(
         'description' => 'Returns a list of Moodle plugins supporting the mobile app.',
         'type'        => 'read',
         'services'    => array(MOODLE_OFFICIAL_MOBILE_SERVICE)
-    ),
-
-    'tool_mobile_get_public_config' => array(
-        'classname'   => 'tool_mobile\external',
-        'methodname'  => 'get_public_config',
-        'description' => 'Returns a list of the site public settings, those not requiring authentication.',
-        'type'        => 'read',
-        'services'    => array(MOODLE_OFFICIAL_MOBILE_SERVICE),
-        'ajax'          => true,
-        'loginrequired' => false,
-    ),
-
-    'tool_mobile_get_config' => array(
-        'classname'   => 'tool_mobile\external',
-        'methodname'  => 'get_config',
-        'description' => 'Returns a list of the site configurations, filtering by section.',
-        'type'        => 'read',
-        'services'    => array(MOODLE_OFFICIAL_MOBILE_SERVICE),
     )
 
 );

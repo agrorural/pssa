@@ -95,8 +95,7 @@ class backup_logger_testcase extends basic_testcase {
         $lo3 = new mock_base_logger3(backup::LOG_ERROR);
         $lo1->set_next($lo2);
         $lo2->set_next($lo3);
-        $msg = 13;
-        $this->assertFalse($lo1->process($msg, backup::LOG_ERROR));
+        $this->assertFalse($lo1->process('test', backup::LOG_ERROR));
 
         // Test checksum correct
         $lo1 = new mock_base_logger1(backup::LOG_ERROR);

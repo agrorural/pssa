@@ -24,8 +24,7 @@
 .path-calendar {
     .calendartable {
         width: 100%;
-        th,
-        td {
+        th, td {
             width: 14%;
             vertical-align: top;
             text-align: center;
@@ -145,8 +144,7 @@
             }
         }
         .calendartable {
-            td,
-            li {
+            td, li {
                 padding: 5px;
             }
             li {
@@ -226,6 +224,75 @@
     }
 }
 
+// RTL overrides for main calendar.
+.dir-rtl.path-calendar {
+    .cal_courses_flt {
+        float: right;
+        label {
+            margin-left: .45em;
+            margin-right: 0;
+        }
+    }
+    .maincalendar {
+        .calendar_event_course,
+        .calendar_event_global,
+        .calendar_event_group,
+        .calendar_event_user {
+            border-left-width: 1px;
+            border-right-width: 12px;
+        }
+        .calendar-controls {
+            .next {
+                text-align: left;
+            }
+            .previous {
+                text-align: right;
+            }
+        }
+        .calendartable {
+            td, li {
+                text-align: right;
+            }
+            li {
+                padding-right: 10px;
+                padding-left: 5px;
+            }
+        }
+        .header {
+            .buttons {
+                float: left;
+            }
+        }
+        .eventlist {
+            .event {
+                > img {
+                    float: right;
+                }
+                .name {
+                    float: right;
+                }
+                .date {
+                    float: left;
+                }
+                .description {
+                    .commands {
+                        right: inherit;
+                        left: 0;
+                    }
+                }
+                .course,
+                .subscription {
+                    float: right;
+                    clear: right;
+                }
+                .commands {
+                    left: 2px;
+                    right: inherit;
+                }
+            }
+        }
+    }
+}
 // Calendar export.
 #page-calendar-export {
     .indent {
@@ -239,8 +306,7 @@
         max-width: 280px;
         margin: 0 auto;
         width: 100%;
-        th,
-        td {
+        th, td {
             padding: 2px;
             font-size: 0.8em;
             text-align: center;
@@ -358,11 +424,33 @@
     }
 }
 
+// RTL overrides for block minicalendar.
+.dir-rtl {
+    .block {
+        .calendar_filters {
+            .eventname {
+                padding-right: 0.2em;
+                padding-left: 0;
+            }
+        }
+        .calendar-event-panel {
+            .yui3-overlay-content {
+                .eventcontent {
+                    img {
+                        padding-right: 0;
+                        padding-left: 5px;
+                    }
+                }
+            }
+        }
+    }
+}
+
 .ical-link {
     font-size: 10px;
     font-weight: bold;
     background-color: #f60;
-    padding: 0 5px;
+    padding: 0px 5px;
     color: #fff;
     border-top: 1px solid #f93;
     border-left: 1px solid #f93;

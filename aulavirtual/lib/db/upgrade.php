@@ -1149,6 +1149,15 @@ function xmldb_main_upgrade($oldversion) {
         // Launch add key tagcloudid.
         $dbman->add_key($table, $key);
 
+        // Define index tagcolltype (not unique) to be added to tag.
+        $table = new xmldb_table('tag');
+        $index = new xmldb_index('tagcolltype', XMLDB_INDEX_NOTUNIQUE, array('tagcollid', 'tagtype'));
+
+        // Conditionally launch add index tagcolltype.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
         // Main savepoint reached.
         upgrade_main_savepoint(true, 2016011300.02);
     }
@@ -1318,7 +1327,6 @@ function xmldb_main_upgrade($oldversion) {
         }
 
         // Define index tagcolltype (not unique) to be dropped form tag.
-        // This index is no longer created however it was present at some point and it's better to be safe and try to drop it.
         $index = new xmldb_index('tagcolltype', XMLDB_INDEX_NOTUNIQUE, array('tagcollid', 'tagtype'));
 
         // Conditionally launch drop index tagcolltype.
@@ -2064,18 +2072,7 @@ function xmldb_main_upgrade($oldversion) {
     // Moodle v3.1.0 release upgrade line.
     // Put any upgrade step following this.
 
-    if ($oldversion < 2016081700.00) {
-
-        // If someone is emotionally attached to it let's leave the config (basically the version) there.
-        if (!file_exists($CFG->dirroot . '/report/search/classes/output/form.php')) {
-            unset_all_config_for_plugin('report_search');
-        }
-
-        // Savepoint reached.
-        upgrade_main_savepoint(true, 2016081700.00);
-    }
-
-    if ($oldversion < 2016081700.02) {
+    if ($oldversion < 2016052301.08) {
         // Default schedule values.
         $hour = 0;
         $minute = 0;
@@ -2113,164 +2110,7 @@ function xmldb_main_upgrade($oldversion) {
         unset_config('statsruntimestartminute');
         unset_config('statslastexecution');
 
-        upgrade_main_savepoint(true, 2016081700.02);
+        upgrade_main_savepoint(true, 2016052301.08);
     }
-
-    if ($oldversion < 2016082200.00) {
-        // An upgrade step to remove any duplicate stamps, within the same context, in the question_categories table, and to
-        // add a unique index to (contextid, stamp) to avoid future stamp duplication. See MDL-54864.
-
-        // Extend the execution time limit of the script to 2 hours.
-        upgrade_set_timeout(7200);
-
-        // This SQL fetches the id of those records which have duplicate stamps within the same context.
-        // This doesn't return the original record within the context, from which the duplicate stamps were likely created.
-        $fromclause = "FROM (
-                        SELECT min(id) AS minid, contextid, stamp
-                            FROM {question_categories}
-                            GROUP BY contextid, stamp
-                        ) minid
-                        JOIN {question_categories} qc
-                            ON qc.contextid = minid.contextid AND qc.stamp = minid.stamp AND qc.id > minid.minid";
-
-        // Get the total record count - used for the progress bar.
-        $countduplicatessql = "SELECT count(qc.id) $fromclause";
-        $total = $DB->count_records_sql($countduplicatessql);
-
-        // Get the records themselves.
-        $getduplicatessql = "SELECT qc.id $fromclause ORDER BY minid";
-        $rs = $DB->get_recordset_sql($getduplicatessql);
-
-        // For each duplicate, update the stamp to a new random value.
-        $i = 0;
-        $pbar = new progress_bar('updatequestioncategorystamp', 500, true);
-        foreach ($rs as $record) {
-            // Generate a new, unique stamp and update the record.
-            do {
-                $newstamp = make_unique_id_code();
-            } while (isset($usedstamps[$newstamp]));
-            $usedstamps[$newstamp] = 1;
-            $DB->set_field('question_categories', 'stamp', $newstamp, array('id' => $record->id));
-
-            // Update progress.
-            $i++;
-            $pbar->update($i, $total, "Updating duplicate question category stamp - $i/$total.");
-        }
-        unset($usedstamps);
-
-        // The uniqueness of each (contextid, stamp) pair is now guaranteed, so add the unique index to stop future duplicates.
-        $table = new xmldb_table('question_categories');
-        $index = new xmldb_index('contextidstamp', XMLDB_INDEX_UNIQUE, array('contextid', 'stamp'));
-        if (!$dbman->index_exists($table, $index)) {
-            $dbman->add_index($table, $index);
-        }
-
-        // Savepoint reached.
-        upgrade_main_savepoint(true, 2016082200.00);
-    }
-
-    if ($oldversion < 2016091900.00) {
-
-        // Removing the themes from core.
-        $themes = array('base', 'canvas');
-
-        foreach ($themes as $key => $theme) {
-            if (check_dir_exists($CFG->dirroot . '/theme/' . $theme, false)) {
-                // Ignore the themes that have been re-downloaded.
-                unset($themes[$key]);
-            }
-        }
-
-        if (!empty($themes)) {
-            // Hacky emulation of plugin uninstallation.
-            foreach ($themes as $theme) {
-                unset_all_config_for_plugin('theme_' . $theme);
-            }
-        }
-
-        // Main savepoint reached.
-        upgrade_main_savepoint(true, 2016091900.00);
-    }
-
-    if ($oldversion < 2016091900.02) {
-
-        // Define index attemptstepid-name (unique) to be dropped from question_attempt_step_data.
-        $table = new xmldb_table('question_attempt_step_data');
-        $index = new xmldb_index('attemptstepid-name', XMLDB_INDEX_UNIQUE, array('attemptstepid', 'name'));
-
-        // Conditionally launch drop index attemptstepid-name.
-        if ($dbman->index_exists($table, $index)) {
-            $dbman->drop_index($table, $index);
-        }
-
-        // Main savepoint reached.
-        upgrade_main_savepoint(true, 2016091900.02);
-    }
-
-    if ($oldversion < 2016100300.00) {
-        unset_config('enablecssoptimiser');
-
-        upgrade_main_savepoint(true, 2016100300.00);
-    }
-
-    if ($oldversion < 2016100501.00) {
-
-        // Define field enddate to be added to course.
-        $table = new xmldb_table('course');
-        $field = new xmldb_field('enddate', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'startdate');
-
-        // Conditionally launch add field enddate.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        // Main savepoint reached.
-        upgrade_main_savepoint(true, 2016100501.00);
-    }
-
-    if ($oldversion < 2016101100.00) {
-        // Define field component to be added to message.
-        $table = new xmldb_table('message');
-        $field = new xmldb_field('component', XMLDB_TYPE_CHAR, '100', null, null, null, null, 'timeusertodeleted');
-
-        // Conditionally launch add field component.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        // Define field eventtype to be added to message.
-        $field = new xmldb_field('eventtype', XMLDB_TYPE_CHAR, '100', null, null, null, null, 'component');
-
-        // Conditionally launch add field eventtype.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        // Main savepoint reached.
-        upgrade_main_savepoint(true, 2016101100.00);
-    }
-
-    if ($oldversion < 2016101101.00) {
-        // Define field component to be added to message_read.
-        $table = new xmldb_table('message_read');
-        $field = new xmldb_field('component', XMLDB_TYPE_CHAR, '100', null, null, null, null, 'timeusertodeleted');
-
-        // Conditionally launch add field component.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        // Define field eventtype to be added to message_read.
-        $field = new xmldb_field('eventtype', XMLDB_TYPE_CHAR, '100', null, null, null, null, 'component');
-
-        // Conditionally launch add field eventtype.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        // Main savepoint reached.
-        upgrade_main_savepoint(true, 2016101101.00);
-    }
-
     return true;
 }

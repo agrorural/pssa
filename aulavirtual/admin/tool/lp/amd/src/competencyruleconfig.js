@@ -70,6 +70,7 @@ define(['jquery',
      *
      * Triggered when a change occured.
      *
+     * @return {Void}
      * @method _afterChange
      * @protected
      */
@@ -86,10 +87,9 @@ define(['jquery',
      *
      * Triggered when a change occured in a specific rule config.
      *
+     * @return {Void}
      * @method _afterRuleConfigChange
      * @protected
-     * @param {Event} e
-     * @param {Rule} rule
      */
     RuleConfig.prototype._afterRuleConfigChange = function(e, rule) {
         if (rule != this._getRule()) {
@@ -102,6 +102,7 @@ define(['jquery',
     /**
      * After render hook.
      *
+     * @return {Promise}
      * @method _afterRender
      * @protected
      */
@@ -137,7 +138,7 @@ define(['jquery',
         $.each(this._rules, function(index, rule) {
             if (rule.canConfig()) {
                 can = true;
-                return;
+                return false;
             }
         });
         return can;
@@ -163,7 +164,7 @@ define(['jquery',
     RuleConfig.prototype.display = function() {
         var self = this;
         if (!self._competency) {
-            return false;
+            return;
         }
         return self._render().then(function(html) {
             return Str.get_string('competencyrule', 'tool_lp').then(function(title) {
@@ -180,7 +181,6 @@ define(['jquery',
      * Find a node in the dialogue.
      *
      * @param {String} selector
-     * @return {JQuery}
      * @method _find
      * @protected
      */
@@ -276,7 +276,7 @@ define(['jquery',
         $.each(this._rules, function(index, rule) {
             if (rule.getType() == type) {
                 result = rule;
-                return;
+                return false;
             }
         });
 
@@ -297,7 +297,7 @@ define(['jquery',
         $.each(self._rulesModules, function(index, modInfo) {
             if (modInfo.type == type) {
                 name = modInfo.name;
-                return;
+                return false;
             }
         });
         return name;
@@ -444,6 +444,7 @@ define(['jquery',
     /**
      * Set up the instance.
      *
+     * @return {Void}
      * @method _setUp
      * @protected
      */
@@ -481,6 +482,7 @@ define(['jquery',
     /**
      * Called when the user switches outcome.
      *
+     * @return {Void}
      * @method _switchedOutcome
      * @protected
      */
@@ -505,6 +507,7 @@ define(['jquery',
     /**
      * Called when the user switches rule.
      *
+     * @return {Void}
      * @method _switchedRule
      * @protected
      */
@@ -532,7 +535,7 @@ define(['jquery',
      * Trigger an event.
      *
      * @param {String} type The type of event.
-     * @param {Object} data The data to pass to the listeners.
+     * @param {Object} The data to pass to the listeners.
      * @method _trigger
      * @protected
      */

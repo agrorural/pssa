@@ -55,22 +55,8 @@ class behat_context_helper {
      *
      * @param Environment $environment
      * @return void
-     * @deprecated since 3.2 MDL-55072 - please use behat_context_helper::set_environment()
-     * @todo MDL-55365 This will be deleted in Moodle 3.6.
      */
     public static function set_session(Environment $environment) {
-        debugging('set_session is deprecated. Please use set_environment instead.', DEBUG_DEVELOPER);
-
-        self::set_environment($environment);
-    }
-
-    /**
-     * Sets behat environment.
-     *
-     * @param Environment $environment
-     * @return void
-     */
-    public static function set_environment(Environment $environment) {
         self::$environment = $environment;
     }
 
@@ -81,27 +67,17 @@ class behat_context_helper {
      * that uses direct API calls; steps returning step chains
      * can not be executed like this.
      *
-     * @throws Behat\Behat\Context\Exception\ContextNotFoundException
+     * @throws coding_exception
      * @param string $classname Context identifier (the class name).
      * @return behat_base
      */
     public static function get($classname) {
 
-        $suitename = self::$environment->getSuite()->getName();
-        $overridencontextname = 'behat_theme_'.$suitename.'_'.$classname;
-
-        // Check if overridden context class exists.
-        if ($suitename !== 'default') {
-            try {
-                $subcontext = self::$environment->getContext($overridencontextname);
-                return $subcontext;
-            } catch (Behat\Behat\Context\Exception\ContextNotFoundException $e) {
-                // If context not found then it's not overridden.
-            }
+        if (!$subcontext = self::$environment->getContext($classname)) {
+            throw coding_exception('The required "' . $classname . '" class does not exist');
         }
 
-        // Get the actual context.
-        return self::$environment->getContext($classname);
+        return $subcontext;
     }
 
     /**

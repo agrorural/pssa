@@ -1225,25 +1225,6 @@ function clean_param($param, $type) {
 }
 
 /**
- * Whether the PARAM_* type is compatible in RTL.
- *
- * Being compatible with RTL means that the data they contain can flow
- * from right-to-left or left-to-right without compromising the user experience.
- *
- * Take URLs for example, they are not RTL compatible as they should always
- * flow from the left to the right. This also applies to numbers, email addresses,
- * configuration snippets, base64 strings, etc...
- *
- * This function tries to best guess which parameters can contain localised strings.
- *
- * @param string $paramtype Constant PARAM_*.
- * @return bool
- */
-function is_rtl_compatible($paramtype) {
-    return $paramtype == PARAM_TEXT || $paramtype == PARAM_NOTAGS;
-}
-
-/**
  * Makes sure the data is using valid utf8, invalid characters are discarded.
  *
  * Note: this function is not intended for full objects with methods and private properties.
@@ -1640,7 +1621,6 @@ function purge_all_caches() {
     cache_helper::purge_all();
 
     // Purge all other caches: rss, simplepie, etc.
-    clearstatcache();
     remove_dir($CFG->cachedir.'', true);
 
     // Make sure cache dir is writable, throws exception if not.
@@ -2072,11 +2052,6 @@ function make_timestamp($year, $month=1, $day=1, $hour=0, $minute=0, $second=0, 
     $date->setTime((int)$hour, (int)$minute, (int)$second);
 
     $time = $date->getTimestamp();
-
-    if ($time === false) {
-        throw new coding_exception('getTimestamp() returned false, please ensure you have passed correct values.'.
-            ' This can fail if year is more than 2038 and OS is 32 bit windows');
-    }
 
     // Moodle BC DST stuff.
     if (!$applydst) {
@@ -2644,17 +2619,8 @@ function require_login($courseorid = null, $autologinguest = true, $cm = null, $
         }
     }
 
-    // Check that the user account is properly set up. If we can't redirect to
-    // edit their profile, perform just the lax check. It will allow them to
-    // use filepicker on the profile edit page.
-
-    if ($preventredirect) {
-        $usernotfullysetup = user_not_fully_set_up($USER, false);
-    } else {
-        $usernotfullysetup = user_not_fully_set_up($USER, true);
-    }
-
-    if ($usernotfullysetup) {
+    // Check that the user account is properly set up.
+    if (user_not_fully_set_up($USER)) {
         if ($preventredirect) {
             throw new require_login_exception('User not fully set-up');
         }
@@ -2685,7 +2651,7 @@ function require_login($courseorid = null, $autologinguest = true, $cm = null, $
     if (!$USER->policyagreed and !is_siteadmin()) {
         if (!empty($CFG->sitepolicy) and !isguestuser()) {
             if ($preventredirect) {
-                throw new moodle_exception('sitepolicynotagreed', 'error', '', $CFG->sitepolicy);
+                throw new require_login_exception('Policy not agreed');
             }
             if ($setwantsurltome) {
                 $SESSION->wantsurl = qualified_me();
@@ -2693,7 +2659,7 @@ function require_login($courseorid = null, $autologinguest = true, $cm = null, $
             redirect($CFG->wwwroot .'/user/policy.php');
         } else if (!empty($CFG->sitepolicyguest) and isguestuser()) {
             if ($preventredirect) {
-                throw new moodle_exception('sitepolicynotagreed', 'error', '', $CFG->sitepolicyguest);
+                throw new require_login_exception('Policy not agreed');
             }
             if ($setwantsurltome) {
                 $SESSION->wantsurl = qualified_me();
@@ -2712,11 +2678,11 @@ function require_login($courseorid = null, $autologinguest = true, $cm = null, $
     }
 
     // If the site is currently under maintenance, then print a message.
-    if (!empty($CFG->maintenance_enabled) and !has_capability('moodle/site:maintenanceaccess', $sysctx)) {
+    if (!empty($CFG->maintenance_enabled) and !has_capability('moodle/site:config', $sysctx)) {
         if ($preventredirect) {
             throw new require_login_exception('Maintenance in progress');
         }
-        $PAGE->set_context(null);
+
         print_maintenance_message();
     }
 
@@ -3069,7 +3035,7 @@ function require_user_key_login($script, $instance=null) {
  * @param int $userid
  * @param int $instance optional instance id
  * @param string $iprestriction optional ip restricted access
- * @param int $validuntil key valid only until given data
+ * @param timestamp $validuntil key valid only until given data
  * @return string access key value
  */
 function create_user_key($script, $userid, $instance=null, $iprestriction=null, $validuntil=null) {
@@ -3112,7 +3078,7 @@ function delete_user_key($script, $userid) {
  * @param int $userid
  * @param int $instance optional instance id
  * @param string $iprestriction optional ip restricted access
- * @param int $validuntil key valid only until given date
+ * @param timestamp $validuntil key valid only until given data
  * @return string access key value
  */
 function get_user_key($script, $userid, $instance=null, $iprestriction=null, $validuntil=null) {
@@ -3169,39 +3135,14 @@ function update_user_login_times() {
 /**
  * Determines if a user has completed setting up their account.
  *
- * The lax mode (with $strict = false) has been introduced for special cases
- * only where we want to skip certain checks intentionally. This is valid in
- * certain mnet or ajax scenarios when the user cannot / should not be
- * redirected to edit their profile. In most cases, you should perform the
- * strict check.
- *
  * @param stdClass $user A {@link $USER} object to test for the existence of a valid name and email
- * @param bool $strict Be more strict and assert id and custom profile fields set, too
  * @return bool
  */
-function user_not_fully_set_up($user, $strict = true) {
-    global $CFG;
-    require_once($CFG->dirroot.'/user/profile/lib.php');
-
+function user_not_fully_set_up($user) {
     if (isguestuser($user)) {
         return false;
     }
-
-    if (empty($user->firstname) or empty($user->lastname) or empty($user->email) or over_bounce_threshold($user)) {
-        return true;
-    }
-
-    if ($strict) {
-        if (empty($user->id)) {
-            // Strict mode can be used with existing accounts only.
-            return true;
-        }
-        if (!profile_has_required_custom_fields_set($user->id)) {
-            return true;
-        }
-    }
-
-    return false;
+    return (empty($user->firstname) or empty($user->lastname) or empty($user->email) or over_bounce_threshold($user));
 }
 
 /**
@@ -4182,12 +4123,6 @@ function authenticate_user_login($username, $password, $ignorelockout=false, &$f
     if ($user) {
         // Use manual if auth not set.
         $auth = empty($user->auth) ? 'manual' : $user->auth;
-
-        if (in_array($user->auth, $authsenabled)) {
-            $authplugin = get_auth_plugin($user->auth);
-            $authplugin->pre_user_login_hook($user);
-        }
-
         if (!empty($user->suspended)) {
             $failurereason = AUTH_LOGIN_SUSPENDED;
 
@@ -4435,6 +4370,7 @@ function password_is_legacy_hash($password) {
  */
 function validate_internal_user_password($user, $password) {
     global $CFG;
+    require_once($CFG->libdir.'/password_compat/lib/password.php');
 
     if ($user->password === AUTH_PASSWORD_NOT_CACHED) {
         // Internal password is not used at all, it can not validate.
@@ -4495,6 +4431,7 @@ function validate_internal_user_password($user, $password) {
  */
 function hash_internal_user_password($password, $fasthash = false) {
     global $CFG;
+    require_once($CFG->libdir.'/password_compat/lib/password.php');
 
     // Set the cost factor to 4 for fast hashing, otherwise use default cost.
     $options = ($fasthash) ? array('cost' => 4) : array();
@@ -4531,6 +4468,7 @@ function hash_internal_user_password($password, $fasthash = false) {
  */
 function update_internal_user_password($user, $password, $fasthash = false) {
     global $CFG, $DB;
+    require_once($CFG->libdir.'/password_compat/lib/password.php');
 
     // Figure out what the hashed password should be.
     if (!isset($user->auth)) {
@@ -4570,10 +4508,8 @@ function update_internal_user_password($user, $password, $fasthash = false) {
         \core\event\user_password_updated::create_from_user($user)->trigger();
 
         // Remove WS user tokens.
-        if (!empty($CFG->passwordchangetokendeletion)) {
-            require_once($CFG->dirroot.'/webservice/lib.php');
-            webservice::delete_user_ws_tokens($user->id);
-        }
+        require_once($CFG->dirroot.'/webservice/lib.php');
+        webservice::delete_user_ws_tokens($user->id);
     }
 
     return true;
@@ -4868,9 +4804,6 @@ function remove_course_contents($courseid, $showfeedback = true, array $options 
         echo $OUTPUT->notification($strdeleted.get_string('type_block_plural', 'plugin'), 'notifysuccess');
     }
 
-    // Get the list of all modules that are properly installed.
-    $allmodules = $DB->get_records_menu('modules', array(), '', 'name, id');
-
     // Delete every instance of every module,
     // this has to be done before deleting of course level stuff.
     $locations = core_component::get_plugin_list('mod');
@@ -4878,36 +4811,30 @@ function remove_course_contents($courseid, $showfeedback = true, array $options 
         if ($modname === 'NEWMODULE') {
             continue;
         }
-        if (array_key_exists($modname, $allmodules)) {
-            $sql = "SELECT cm.*, m.id AS modinstance, m.name, '$modname' AS modname
-              FROM {".$modname."} m
-                   LEFT JOIN {course_modules} cm ON cm.instance = m.id AND cm.module = :moduleid
-             WHERE m.course = :courseid";
-            $instances = $DB->get_records_sql($sql, array('courseid' => $course->id,
-                'modulename' => $modname, 'moduleid' => $allmodules[$modname]));
-
+        if ($module = $DB->get_record('modules', array('name' => $modname))) {
             include_once("$moddir/lib.php");                 // Shows php warning only if plugin defective.
             $moddelete = $modname .'_delete_instance';       // Delete everything connected to an instance.
             $moddeletecourse = $modname .'_delete_course';   // Delete other stray stuff (uncommon).
 
-            if ($instances) {
-                foreach ($instances as $cm) {
-                    if ($cm->id) {
+            if ($instances = $DB->get_records($modname, array('course' => $course->id))) {
+                foreach ($instances as $instance) {
+                    if ($cm = get_coursemodule_from_instance($modname, $instance->id, $course->id)) {
                         // Delete activity context questions and question categories.
                         question_delete_activity($cm,  $showfeedback);
+
                         // Notify the competency subsystem.
                         \core_competency\api::hook_course_module_deleted($cm);
                     }
                     if (function_exists($moddelete)) {
                         // This purges all module data in related tables, extra user prefs, settings, etc.
-                        $moddelete($cm->modinstance);
+                        $moddelete($instance->id);
                     } else {
                         // NOTE: we should not allow installation of modules with missing delete support!
                         debugging("Defective module '$modname' detected when deleting course contents: missing function $moddelete()!");
-                        $DB->delete_records($modname, array('id' => $cm->modinstance));
+                        $DB->delete_records($modname, array('id' => $instance->id));
                     }
 
-                    if ($cm->id) {
+                    if ($cm) {
                         // Delete cm and its context - orphaned contexts are purged in cron in case of any race condition.
                         context_helper::delete_instance(CONTEXT_MODULE, $cm->id);
                         $DB->delete_records('course_modules', array('id' => $cm->id));
@@ -4915,9 +4842,7 @@ function remove_course_contents($courseid, $showfeedback = true, array $options 
                 }
             }
             if (function_exists($moddeletecourse)) {
-                // Execute optional course cleanup callback. Deprecated since Moodle 3.2. TODO MDL-53297 remove in 3.6.
-                debugging("Callback delete_course is deprecated. Function $moddeletecourse should be converted " .
-                    'to observer of event \core\event\course_content_deleted', DEBUG_DEVELOPER);
+                // Execute ptional course cleanup callback.
                 $moddeletecourse($course, $showfeedback);
             }
             if ($instances and $showfeedback) {
@@ -4937,13 +4862,12 @@ function remove_course_contents($courseid, $showfeedback = true, array $options 
            'coursemoduleid IN (SELECT id from {course_modules} WHERE course=?)',
            array($courseid));
 
-    // Remove course-module data that has not been removed in modules' _delete_instance callbacks.
+    // Remove course-module data.
     $cms = $DB->get_records('course_modules', array('course' => $course->id));
-    $allmodulesbyid = array_flip($allmodules);
     foreach ($cms as $cm) {
-        if (array_key_exists($cm->module, $allmodulesbyid)) {
+        if ($module = $DB->get_record('modules', array('id' => $cm->module))) {
             try {
-                $DB->delete_records($allmodulesbyid[$cm->module], array('id' => $cm->instance));
+                $DB->delete_records($module->name, array('id' => $cm->instance));
             } catch (Exception $e) {
                 // Ignore weird or missing table problems.
             }
@@ -4956,19 +4880,17 @@ function remove_course_contents($courseid, $showfeedback = true, array $options 
         echo $OUTPUT->notification($strdeleted.get_string('type_mod_plural', 'plugin'), 'notifysuccess');
     }
 
-    // Cleanup the rest of plugins. Deprecated since Moodle 3.2. TODO MDL-53297 remove in 3.6.
+    // Cleanup the rest of plugins.
     $cleanuplugintypes = array('report', 'coursereport', 'format');
     $callbacks = get_plugins_with_function('delete_course', 'lib.php');
     foreach ($cleanuplugintypes as $type) {
         if (!empty($callbacks[$type])) {
             foreach ($callbacks[$type] as $pluginfunction) {
-                debugging("Callback delete_course is deprecated. Function $pluginfunction should be converted " .
-                    'to observer of event \core\event\course_content_deleted', DEBUG_DEVELOPER);
                 $pluginfunction($course->id, $showfeedback);
             }
-            if ($showfeedback) {
-                echo $OUTPUT->notification($strdeleted.get_string('type_'.$type.'_plural', 'plugin'), 'notifysuccess');
-            }
+        }
+        if ($showfeedback) {
+            echo $OUTPUT->notification($strdeleted.get_string('type_'.$type.'_plural', 'plugin'), 'notifysuccess');
         }
     }
 
@@ -5180,15 +5102,6 @@ function reset_course_userdata($data) {
         }
 
         $status[] = array('component' => $componentstr, 'item' => get_string('datechanged'), 'error' => false);
-    }
-
-    if (!empty($data->reset_end_date)) {
-        // If the user set a end date value respect it.
-        $DB->set_field('course', 'enddate', $data->reset_end_date, array('id' => $data->courseid));
-    } else if ($data->timeshift > 0 && $data->reset_end_date_old) {
-        // If there is a time shift apply it to the end date as well.
-        $enddate = $data->reset_end_date_old + $data->timeshift;
-        $DB->set_field('course', 'enddate', $enddate, array('id' => $data->courseid));
     }
 
     if (!empty($data->reset_events)) {
@@ -7878,20 +7791,19 @@ function random_bytes_emulate($length) {
         }
     }
     if (function_exists('openssl_random_pseudo_bytes')) {
-        // If you have the openssl extension enabled.
+        // For PHP 5.3 and later with openssl extension.
         $hash = openssl_random_pseudo_bytes($length);
         if ($hash !== false) {
             return $hash;
         }
     }
 
-    // Bad luck, there is no reliable random generator, let's just slowly hash some unique stuff that is hard to guess.
+    // Bad luck, there is no reliable random generator, let's just hash some unique stuff that is hard to guess.
     $staticdata = serialize($CFG) . serialize($_SERVER);
     $hash = '';
     do {
         $hash .= sha1($staticdata . microtime(true) . uniqid('', true), true);
     } while (strlen($hash) < $length);
-
     return substr($hash, 0, $length);
 }
 
@@ -8705,6 +8617,8 @@ function getremoteaddr($default='0.0.0.0') {
 function cleanremoteaddr($addr, $compress=false) {
     $addr = trim($addr);
 
+    // TODO: maybe add a separate function is_addr_public() or something like this.
+
     if (strpos($addr, ':') !== false) {
         // Can be only IPv6.
         $parts = explode(':', $addr);
@@ -8797,17 +8711,6 @@ function cleanremoteaddr($addr, $compress=false) {
     return implode('.', $parts);
 }
 
-
-/**
- * Is IP address a public address?
- *
- * @param string $ip The ip to check
- * @return bool true if the ip is public
- */
-function ip_is_public($ip) {
-    return (bool) filter_var($ip, FILTER_VALIDATE_IP, (FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE));
-}
-
 /**
  * This function will make a complete copy of anything it's given,
  * regardless of whether it's an object or not.
@@ -8817,6 +8720,103 @@ function ip_is_public($ip) {
  */
 function fullclone($thing) {
     return unserialize(serialize($thing));
+}
+
+ /**
+  * If new messages are waiting for the current user, then insert
+  * JavaScript to pop up the messaging window into the page
+  *
+  * @return void
+  */
+function message_popup_window() {
+    global $USER, $DB, $PAGE, $CFG;
+
+    if (!$PAGE->get_popup_notification_allowed() || empty($CFG->messaging)) {
+        return;
+    }
+
+    if (!isloggedin() || isguestuser()) {
+        return;
+    }
+
+    if (!isset($USER->message_lastpopup)) {
+        $USER->message_lastpopup = 0;
+    } else if ($USER->message_lastpopup > (time()-120)) {
+        // Don't run the query to check whether to display a popup if its been run in the last 2 minutes.
+        return;
+    }
+
+    // A quick query to check whether the user has new messages.
+    $messagecount = $DB->count_records('message', array('useridto' => $USER->id));
+    if ($messagecount < 1) {
+        return;
+    }
+
+    // There are unread messages so now do a more complex but slower query.
+    $messagesql = "SELECT m.id, c.blocked
+                     FROM {message} m
+                     JOIN {message_working} mw ON m.id=mw.unreadmessageid
+                     JOIN {message_processors} p ON mw.processorid=p.id
+                     LEFT JOIN {message_contacts} c ON c.contactid = m.useridfrom
+                                                   AND c.userid = m.useridto
+                    WHERE m.useridto = :userid
+                      AND p.name='popup'";
+
+    // If the user was last notified over an hour ago we can re-notify them of old messages
+    // so don't worry about when the new message was sent.
+    $lastnotifiedlongago = $USER->message_lastpopup < (time()-3600);
+    if (!$lastnotifiedlongago) {
+        $messagesql .= 'AND m.timecreated > :lastpopuptime';
+    }
+
+    $waitingmessages = $DB->get_records_sql($messagesql, array('userid' => $USER->id, 'lastpopuptime' => $USER->message_lastpopup));
+
+    $validmessages = 0;
+    foreach ($waitingmessages as $messageinfo) {
+        if ($messageinfo->blocked) {
+            // Message is from a user who has since been blocked so just mark it read.
+            // Get the full message to mark as read.
+            $messageobject = $DB->get_record('message', array('id' => $messageinfo->id));
+            message_mark_message_read($messageobject, time());
+        } else {
+            $validmessages++;
+        }
+    }
+
+    if ($validmessages > 0) {
+        $strmessages = get_string('unreadnewmessages', 'message', $validmessages);
+        $strgomessage = get_string('gotomessages', 'message');
+        $strstaymessage = get_string('ignore', 'admin');
+
+        $notificationsound = null;
+        $beep = get_user_preferences('message_beepnewmessage', '');
+        if (!empty($beep)) {
+            // Browsers will work down this list until they find something they support.
+            $sourcetags =  html_writer::empty_tag('source', array('src' => $CFG->wwwroot.'/message/bell.wav', 'type' => 'audio/wav'));
+            $sourcetags .= html_writer::empty_tag('source', array('src' => $CFG->wwwroot.'/message/bell.ogg', 'type' => 'audio/ogg'));
+            $sourcetags .= html_writer::empty_tag('source', array('src' => $CFG->wwwroot.'/message/bell.mp3', 'type' => 'audio/mpeg'));
+            $sourcetags .= html_writer::empty_tag('embed',  array('src' => $CFG->wwwroot.'/message/bell.wav', 'autostart' => 'true', 'hidden' => 'true'));
+
+            $notificationsound = html_writer::tag('audio', $sourcetags, array('preload' => 'auto', 'autoplay' => 'autoplay'));
+        }
+
+        $url = $CFG->wwwroot.'/message/index.php';
+        $content =  html_writer::start_tag('div', array('id' => 'newmessageoverlay', 'class' => 'mdl-align')).
+                        html_writer::start_tag('div', array('id' => 'newmessagetext')).
+                            $strmessages.
+                        html_writer::end_tag('div').
+
+                        $notificationsound.
+                        html_writer::start_tag('div', array('id' => 'newmessagelinks')).
+                        html_writer::link($url, $strgomessage, array('id' => 'notificationyes')).'&nbsp;&nbsp;&nbsp;'.
+                        html_writer::link('', $strstaymessage, array('id' => 'notificationno')).
+                        html_writer::end_tag('div');
+                    html_writer::end_tag('div');
+
+        $PAGE->requires->js_init_call('M.core_message.init_notification', array('', $content, $url));
+
+        $USER->message_lastpopup = time();
+    }
 }
 
 /**
@@ -8868,11 +8868,6 @@ function get_performance_info() {
     $info = array();
     $info['html'] = '';         // Holds userfriendly HTML representation.
     $info['txt']  = me() . ' '; // Holds log-friendly representation.
-
-    if (!empty($CFG->themedesignermode)) {
-        // Attempt to avoid devs debugging peformance issues, when its caused by css building and so on.
-        $info['html'] = '<p><strong>Warning: Theme designer mode is enabled.</strong></p>';
-    }
 
     $info['realtime'] = microtime_diff($PERF->starttime, microtime());
 

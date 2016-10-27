@@ -34,8 +34,13 @@ $s = optional_param('s', '', PARAM_RAW);        // Old parameter:  username
 $PAGE->set_url('/login/confirm.php');
 $PAGE->set_context(context_system::instance());
 
-if (!$authplugin = signup_get_user_confirmation_authplugin()) {
-    throw new moodle_exception('confirmationnotenabled');
+if (empty($CFG->registerauth)) {
+    print_error('cannotusepage2');
+}
+$authplugin = get_auth_plugin($CFG->registerauth);
+
+if (!$authplugin->can_confirm()) {
+    print_error('cannotusepage2');
 }
 
 if (!empty($data) || (!empty($p) && !empty($s))) {

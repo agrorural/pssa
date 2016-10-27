@@ -25,4 +25,3 @@
  */
 
 $string['pluginname'] = 'Multimenu';
-$string['fieldtypelabel'] = 'Multiple-selection menu field';

@@ -12,10 +12,7 @@ if ($hassiteconfig or has_any_capability($capabilities, $systemcontext)) { // sp
     $ADMIN->add('appearance', new admin_category('themes', new lang_string('themes')));
     // "themesettings" settingpage
     $temp = new admin_settingpage('themesettings', new lang_string('themesettings', 'admin'));
-    $setting = new admin_setting_configtext('themelist', new lang_string('themelist', 'admin'),
-        new lang_string('configthemelist', 'admin'), '', PARAM_NOTAGS);
-    $setting->set_force_ltr(true);
-    $temp->add($setting);
+    $temp->add(new admin_setting_configtext('themelist', new lang_string('themelist', 'admin'), new lang_string('configthemelist','admin'), '', PARAM_NOTAGS));
     $setting = new admin_setting_configcheckbox('themedesignermode', new lang_string('themedesignermode', 'admin'), new lang_string('configthemedesignermode', 'admin'), 0);
     $setting->set_updatedcallback('theme_reset_all_caches');
     $temp->add($setting);
@@ -25,8 +22,7 @@ if ($hassiteconfig or has_any_capability($capabilities, $systemcontext)) { // sp
     $temp->add(new admin_setting_configcheckbox('allowthemechangeonurl',  new lang_string('allowthemechangeonurl', 'admin'), new lang_string('configallowthemechangeonurl', 'admin'), 0));
     $temp->add(new admin_setting_configcheckbox('allowuserblockhiding', new lang_string('allowuserblockhiding', 'admin'), new lang_string('configallowuserblockhiding', 'admin'), 1));
     $temp->add(new admin_setting_configcheckbox('allowblockstodock', new lang_string('allowblockstodock', 'admin'), new lang_string('configallowblockstodock', 'admin'), 1));
-    $temp->add(new admin_setting_configtextarea('custommenuitems', new lang_string('custommenuitems', 'admin'),
-        new lang_string('configcustommenuitems', 'admin'), '', PARAM_RAW, '50', '10'));
+    $temp->add(new admin_setting_configtextarea('custommenuitems', new lang_string('custommenuitems', 'admin'), new lang_string('configcustommenuitems', 'admin'), '', PARAM_TEXT, '50', '10'));
     $temp->add(new admin_setting_configtextarea(
         'customusermenuitems',
         new lang_string('customusermenuitems', 'admin'),
@@ -34,7 +30,7 @@ if ($hassiteconfig or has_any_capability($capabilities, $systemcontext)) { // sp
         'grades,grades|/grade/report/mygrades.php|grades
 messages,message|/message/index.php|message
 preferences,moodle|/user/preferences.php|preferences',
-        PARAM_RAW,
+        PARAM_TEXT,
         '50',
         '10'
     ));
@@ -55,26 +51,6 @@ preferences,moodle|/user/preferences.php|preferences',
         }
     }
 
-    // Logos section.
-    $temp = new admin_settingpage('logos', new lang_string('logossettings', 'admin'));
-
-    // Logo file setting.
-    $title = get_string('logo', 'admin');
-    $description = get_string('logo_desc', 'admin');
-    $setting = new admin_setting_configstoredfile('core_admin/logo', $title, $description, 'logo', 0,
-        ['maxfiles' => 1, 'accepted_types' => ['.jpg', '.png']]);
-    $setting->set_updatedcallback('theme_reset_all_caches');
-    $temp->add($setting);
-
-    // Small logo file setting.
-    $title = get_string('logocompact', 'admin');
-    $description = get_string('logocompact_desc', 'admin');
-    $setting = new admin_setting_configstoredfile('core_admin/logocompact', $title, $description, 'logocompact', 0,
-        ['maxfiles' => 1, 'accepted_types' => ['.jpg', '.png']]);
-    $setting->set_updatedcallback('theme_reset_all_caches');
-    $temp->add($setting);
-
-    $ADMIN->add('appearance', $temp);
 
     // Calendar settings.
     $temp = new admin_settingpage('calendar', new lang_string('calendarsettings','admin'));
@@ -278,6 +254,8 @@ preferences,moodle|/user/preferences.php|preferences',
     $setting->set_updatedcallback('js_reset_all_caches');
     $temp->add($setting);
     $temp->add(new admin_setting_configcheckbox('modchooserdefault', new lang_string('modchooserdefault', 'admin'), new lang_string('configmodchooserdefault', 'admin'), 1));
+    $temp->add(new admin_setting_configcheckbox('modeditingmenu', new lang_string('modeditingmenu', 'admin'), new lang_string('modeditingmenu_desc', 'admin'), 1));
+    $temp->add(new admin_setting_configcheckbox('blockeditingmenu', new lang_string('blockeditingmenu', 'admin'), new lang_string('blockeditingmenu_desc', 'admin'), 1));
     $ADMIN->add('appearance', $temp);
 
     // link to tag management interface

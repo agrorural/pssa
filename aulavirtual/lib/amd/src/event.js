@@ -23,23 +23,16 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @since      3.0
  */
-define(['jquery', 'core/yui'],
+define([ 'jquery', 'core/yui' ],
        function($, Y) {
 
     return /** @alias module:core/event */ {
-
-
         // Public variables and functions.
-        // These are AMD only events - no backwards compatibility for new things.
-        Events: {
-            FORM_FIELD_VALIDATION: "core_form-field-validation"
-        },
-
         /**
          * Trigger an event using both JQuery and YUI
          *
          * @method notifyFilterContentUpdated
-         * @param {string|JQuery} nodes - Selector or list of elements that were inserted.
+         * @param {string}|{JQuery} nodes - Selector or list of elements that were inserted.
          */
         notifyFilterContentUpdated: function(nodes) {
             nodes = $(nodes);
@@ -51,7 +44,7 @@ define(['jquery', 'core/yui'],
                 var yuiNodes = new Y.NodeList(nodes.get());
 
                 // And again for YUI.
-                Y.fire(M.core.event.FILTER_CONTENT_UPDATED, {nodes: yuiNodes});
+                Y.fire(M.core.event.FILTER_CONTENT_UPDATED, { nodes: yuiNodes });
             });
         },
         /**

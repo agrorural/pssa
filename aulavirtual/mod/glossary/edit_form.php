@@ -126,7 +126,10 @@ class mod_glossary_entry_form extends moodleform {
 
         } else {
             if (!$glossary->allowduplicatedentries) {
-                if (glossary_concept_exists($glossary, $data['concept'])) {
+                if ($DB->record_exists_select('glossary_entries',
+                        'glossaryid = :glossaryid AND LOWER(concept) = :concept', array(
+                            'glossaryid' => $glossary->id,
+                            'concept'    => core_text::strtolower($data['concept'])))) {
                     $errors['concept'] = get_string('errconceptalreadyexists', 'glossary');
                 }
             }

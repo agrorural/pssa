@@ -384,8 +384,7 @@ function default_exception_handler($ex) {
                 // If you enable db debugging and exception is thrown, the print footer prints a lot of rubbish
                 $DB->set_debug(0);
             }
-            echo $OUTPUT->fatal_error($info->message, $info->moreinfourl, $info->link, $info->backtrace, $info->debuginfo,
-                $info->errorcode);
+            echo $OUTPUT->fatal_error($info->message, $info->moreinfourl, $info->link, $info->backtrace, $info->debuginfo);
         } catch (Exception $e) {
             $out_ex = $e;
         } catch (Throwable $e) {
@@ -461,7 +460,7 @@ function is_early_init($backtrace) {
     $dangerouscode = array(
         array('function' => 'header', 'type' => '->'),
         array('class' => 'bootstrap_renderer'),
-        array('file' => __DIR__.'/setup.php'),
+        array('file' => dirname(__FILE__).'/setup.php'),
     );
     foreach ($backtrace as $stackframe) {
         foreach ($dangerouscode as $pattern) {
@@ -736,7 +735,7 @@ function get_docs_url($path = null) {
  */
 function format_backtrace($callers, $plaintext = false) {
     // do not use $CFG->dirroot because it might not be available in destructors
-    $dirroot = dirname(__DIR__);
+    $dirroot = dirname(dirname(__FILE__));
 
     if (empty($callers)) {
         return '';
@@ -1388,7 +1387,7 @@ function disable_output_buffering() {
  */
 function redirect_if_major_upgrade_required() {
     global $CFG;
-    $lastmajordbchanges = 2016100501.00;
+    $lastmajordbchanges = 2014093001.00;
     if (empty($CFG->version) or (float)$CFG->version < $lastmajordbchanges or
             during_initial_install() or !empty($CFG->adminsetuppending)) {
         try {

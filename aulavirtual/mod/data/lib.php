@@ -64,18 +64,6 @@ class data_field_base {     // Base class for Database Field Types (see field/*/
     var $cm;
     /** @var object activity context */
     var $context;
-    /** @var priority for globalsearch indexing */
-    protected static $priority = self::NO_PRIORITY;
-    /** priority value for invalid fields regarding indexing */
-    const NO_PRIORITY = 0;
-    /** priority value for minimum priority */
-    const MIN_PRIORITY = 1;
-    /** priority value for low priority */
-    const LOW_PRIORITY = 2;
-    /** priority value for high priority */
-    const HIGH_PRIORITY = 3;
-    /** priority value for maximum priority */
-    const MAX_PRIORITY = 4;
 
     /**
      * Constructor function
@@ -489,7 +477,7 @@ class data_field_base {     // Base class for Database Field Types (see field/*/
      * @return string
      */
     function name() {
-        return get_string('fieldtypelabel', "datafield_$this->type");
+        return get_string('name'.$this->type, 'data');
     }
 
     /**
@@ -538,27 +526,6 @@ class data_field_base {     // Base class for Database Field Types (see field/*/
      */
     function file_ok($relativepath) {
         return false;
-    }
-
-    /**
-     * Returns the priority for being indexed by globalsearch
-     *
-     * @return int
-     */
-    public static function get_priority() {
-        return static::$priority;
-    }
-
-    /**
-     * Returns the presentable string value for a field content.
-     *
-     * The returned string should be plain text.
-     *
-     * @param stdClass $content
-     * @return string
-     */
-    public static function get_content_value($content) {
-        return trim($content->content, "\r\n ");
     }
 }
 
@@ -939,8 +906,7 @@ function data_tags_check($dataid, $template) {
  * @return int intance id
  */
 function data_add_instance($data, $mform = null) {
-    global $DB, $CFG;
-    require_once($CFG->dirroot.'/mod/data/locallib.php');
+    global $DB;
 
     if (empty($data->assessed)) {
         $data->assessed = 0;
@@ -955,9 +921,6 @@ function data_add_instance($data, $mform = null) {
 
     $data->id = $DB->insert_record('data', $data);
 
-    // Add calendar events if necessary.
-    data_set_events($data);
-
     data_grade_item_update($data);
 
     return $data->id;
@@ -971,8 +934,7 @@ function data_add_instance($data, $mform = null) {
  * @return bool
  */
 function data_update_instance($data) {
-    global $DB, $CFG;
-    require_once($CFG->dirroot.'/mod/data/locallib.php');
+    global $DB, $OUTPUT;
 
     $data->timemodified = time();
     $data->id           = $data->instance;
@@ -991,9 +953,6 @@ function data_update_instance($data) {
     }
 
     $DB->update_record('data', $data);
-
-    // Add calendar events if necessary.
-    data_set_events($data);
 
     data_grade_item_update($data);
 
@@ -1034,13 +993,6 @@ function data_delete_instance($id) {    // takes the dataid
     // delete all the records and fields
     $DB->delete_records('data_records', array('dataid'=>$id));
     $DB->delete_records('data_fields', array('dataid'=>$id));
-
-    // Remove old calendar events.
-    $events = $DB->get_records('event', array('modulename' => 'data', 'instance' => $id));
-    foreach ($events as $event) {
-        $event = calendar_event::load($event);
-        $event->delete();
-    }
 
     // Delete the instance itself
     $result = $DB->delete_records('data', array('id'=>$id));
@@ -4014,80 +3966,4 @@ function data_process_submission(stdClass $mod, $fields, stdClass $datarecord) {
     $result->validated = $requiredfieldsfilled && !$emptyform && $fieldsvalidated;
 
     return $result;
-}
-
-/**
- * This standard function will check all instances of this module
- * and make sure there are up-to-date events created for each of them.
- * If courseid = 0, then every data event in the site is checked, else
- * only data events belonging to the course specified are checked.
- * This function is used, in its new format, by restore_refresh_events()
- *
- * @param int $courseid
- * @return bool
- */
-function data_refresh_events($courseid = 0) {
-    global $DB, $CFG;
-    require_once($CFG->dirroot.'/mod/data/locallib.php');
-
-    if ($courseid) {
-        if (! $data = $DB->get_records("data", array("course" => $courseid))) {
-            return true;
-        }
-    } else {
-        if (! $data = $DB->get_records("data")) {
-            return true;
-        }
-    }
-
-    foreach ($data as $datum) {
-        data_set_events($datum);
-    }
-    return true;
-}
-
-/**
- * Fetch the configuration for this database activity.
- *
- * @param   stdClass    $database   The object returned from the database for this instance
- * @param   string      $key        The name of the key to retrieve. If none is supplied, then all configuration is returned
- * @param   mixed       $default    The default value to use if no value was found for the specified key
- * @return  mixed                   The returned value
- */
-function data_get_config($database, $key = null, $default = null) {
-    if (!empty($database->config)) {
-        $config = json_decode($database->config);
-    } else {
-        $config = new stdClass();
-    }
-
-    if ($key === null) {
-        return $config;
-    }
-
-    if (property_exists($config, $key)) {
-        return $config->$key;
-    }
-    return $default;
-}
-
-/**
- * Update the configuration for this database activity.
- *
- * @param   stdClass    $database   The object returned from the database for this instance
- * @param   string      $key        The name of the key to set
- * @param   mixed       $value      The value to set for the key
- */
-function data_set_config(&$database, $key, $value) {
-    // Note: We must pass $database by reference because there may be subsequent calls to update_record and these should
-    // not overwrite the configuration just set.
-    global $DB;
-
-    $config = data_get_config($database);
-
-    if (!isset($config->$key) || $config->$key !== $value) {
-        $config->$key = $value;
-        $database->config = json_encode($config);
-        $DB->set_field('data', 'config', $database->config, ['id' => $database->id]);
-    }
 }

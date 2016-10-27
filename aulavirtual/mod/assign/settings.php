@@ -65,12 +65,10 @@ if ($ADMIN->fulltree) {
     $name = new lang_string('submissionstatement', 'mod_assign');
     $description = new lang_string('submissionstatement_help', 'mod_assign');
     $default = get_string('submissionstatementdefault', 'mod_assign');
-    $setting = new admin_setting_configtextarea('assign/submissionstatement',
+    $settings->add(new admin_setting_configtextarea('assign/submissionstatement',
                                                     $name,
                                                     $description,
-                                                    $default);
-    $setting->set_force_ltr(false);
-    $settings->add($setting);
+                                                    $default));
 
     $name = new lang_string('maxperpage', 'mod_assign');
     $options = array(

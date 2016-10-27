@@ -1032,8 +1032,7 @@ function wiki_set_lock($pageid, $userid, $section = null, $insert = false) {
     if (!empty($lock)) {
         $DB->update_record('wiki_locks', array('id' => $lock->id, 'lockedat' => time() + LOCK_TIMEOUT));
     } else if ($insert) {
-        $DB->insert_record('wiki_locks',
-            array('pageid' => $pageid, 'sectionname' => $section, 'userid' => $userid, 'lockedat' => time() + LOCK_TIMEOUT));
+        $DB->insert_record('wiki_locks', array('pageid' => $pageid, 'sectionname' => $section, 'userid' => $userid, 'lockedat' => time() + 30));
     }
 
     return true;

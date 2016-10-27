@@ -1,5 +1,3 @@
-/* eslint-disable no-unused-vars */
-/* global SELECTOR */
 var COMMENTSEARCHNAME = "commentsearch",
     COMMENTSEARCH;
 
@@ -34,7 +32,7 @@ Y.extend(COMMENTSEARCH, M.core.dialogue, {
      * @method initializer
      * @return void
      */
-    initializer: function(config) {
+    initializer : function(config) {
         var editor,
             container,
             placeholder,
@@ -70,7 +68,7 @@ Y.extend(COMMENTSEARCH, M.core.dialogue, {
      * @protected
      * @method filter_search_comments
      */
-    filter_search_comments: function() {
+    filter_search_comments : function() {
         var filternode,
             commentslist,
             filtertext,
@@ -82,7 +80,7 @@ Y.extend(COMMENTSEARCH, M.core.dialogue, {
 
         filtertext = filternode.get('value');
 
-        commentslist.all('li').each(function(node) {
+        commentslist.all('li').each(function (node) {
             if (node.get('text').indexOf(filtertext) !== -1) {
                 node.show();
             } else {
@@ -98,7 +96,7 @@ Y.extend(COMMENTSEARCH, M.core.dialogue, {
      * @protected
      * @method focus_on_comment
      */
-    focus_on_comment: function(e) {
+    focus_on_comment : function(e) {
         e.preventDefault();
         var target = e.target.ancestor('li'),
             comment = target.getData('comment'),
@@ -122,7 +120,7 @@ Y.extend(COMMENTSEARCH, M.core.dialogue, {
      * @method show
      * @return void
      */
-    show: function() {
+    show : function() {
         var commentlist = this.get('boundingBox').one('ul'),
             editor = this.get('editor');
 
@@ -141,8 +139,8 @@ Y.extend(COMMENTSEARCH, M.core.dialogue, {
         COMMENTSEARCH.superclass.show.call(this);
     }
 }, {
-    NAME: COMMENTSEARCHNAME,
-    ATTRS: {
+    NAME : COMMENTSEARCHNAME,
+    ATTRS : {
         /**
          * The editor this search window is attached to.
          *
@@ -150,8 +148,8 @@ Y.extend(COMMENTSEARCH, M.core.dialogue, {
          * @type M.assignfeedback_editpdf.editor
          * @default null
          */
-        editor: {
-            value: null
+        editor : {
+            value : null
         }
 
     }

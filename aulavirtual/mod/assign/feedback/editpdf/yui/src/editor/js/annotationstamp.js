@@ -12,7 +12,6 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-/* global SELECTOR */
 
 /**
  * Provides an in browser PDF editor.
@@ -41,7 +40,7 @@ Y.extend(ANNOTATIONSTAMP, M.assignfeedback_editpdf.annotation, {
      * @method draw
      * @return M.assignfeedback_editpdf.drawable
      */
-    draw: function() {
+    draw : function() {
         var drawable = new M.assignfeedback_editpdf.drawable(this.editor),
             drawingregion = this.editor.get_dialogue_element(SELECTOR.DRAWINGREGION),
             node,
@@ -85,7 +84,7 @@ Y.extend(ANNOTATIONSTAMP, M.assignfeedback_editpdf.annotation, {
      * @method draw_current_edit
      * @param M.assignfeedback_editpdf.edit edit
      */
-    draw_current_edit: function(edit) {
+    draw_current_edit : function(edit) {
         var bounds = new M.assignfeedback_editpdf.rect(),
             drawable = new M.assignfeedback_editpdf.drawable(this.editor),
             drawingregion = this.editor.get_dialogue_element(SELECTOR.DRAWINGREGION),
@@ -124,7 +123,7 @@ Y.extend(ANNOTATIONSTAMP, M.assignfeedback_editpdf.annotation, {
      * @param M.assignfeedback_editpdf.edit edit
      * @return bool if width/height is more than min. required.
      */
-    init_from_edit: function(edit) {
+    init_from_edit : function(edit) {
         var bounds = new M.assignfeedback_editpdf.rect();
         bounds.bound([edit.start, edit.end]);
 
@@ -154,7 +153,7 @@ Y.extend(ANNOTATIONSTAMP, M.assignfeedback_editpdf.annotation, {
      * @param int newy
      * @method move_annotation
      */
-    move: function(newx, newy) {
+    move : function(newx, newy) {
         var diffx = newx - this.x,
             diffy = newy - this.y;
 

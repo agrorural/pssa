@@ -2687,10 +2687,6 @@ function create_course($data, $editoroptions = NULL) {
         }
     }
 
-    if ($errorcode = course_validate_dates((array)$data)) {
-        throw new moodle_exception($errorcode);
-    }
-
     // Check if timecreated is given.
     $data->timecreated  = !empty($data->timecreated) ? $data->timecreated : time();
     $data->timemodified = $data->timecreated;
@@ -2780,11 +2776,6 @@ function update_course($data, $editoroptions = NULL) {
 
     $data->timemodified = time();
 
-    // Prevent changes on front page course.
-    if ($data->id == SITEID) {
-        throw new moodle_exception('invalidcourse', 'error');
-    }
-
     $oldcourse = course_get_format($data->id)->get_course();
     $context   = context_course::instance($oldcourse->id);
 
@@ -2807,10 +2798,6 @@ function update_course($data, $editoroptions = NULL) {
         if ($DB->record_exists_sql('SELECT id from {course} WHERE idnumber = ? AND id <> ?', array($data->idnumber, $data->id))) {
             throw new moodle_exception('courseidnumbertaken', '', '', $data->idnumber);
         }
-    }
-
-    if ($errorcode = course_validate_dates((array)$data)) {
-        throw new moodle_exception($errorcode);
     }
 
     if (!isset($data->category) or empty($data->category)) {
@@ -4085,142 +4072,4 @@ function course_get_tagged_course_modules($tag, $exclusivemode = false, $fromcon
         return new core_tag\output\tagindex($tag, 'core', 'course_modules', $content,
                 $exclusivemode, $fromcontextid, $contextid, $recursivecontext, $page, $totalpages);
     }
-}
-
-/**
- * Return an object with the list of navigation options in a course that are avaialable or not for the current user.
- * This function also handles the frontpage course.
- *
- * @param  stdClass $context context object (it can be a course context or the system context for frontpage settings)
- * @param  stdClass $course  the course where the settings are being rendered (only used when $context is set to frontpage)
- * @return stdClass          the navigation options in a course and their availability status
- * @since  Moodle 3.2
- */
-function course_get_user_navigation_options($context, $course = null) {
-    global $CFG;
-
-    $isloggedin = isloggedin();
-    $isguestuser = isguestuser();
-    $isfrontpage = $context->contextlevel == CONTEXT_SYSTEM;
-
-    if ($isfrontpage) {
-        $sitecontext = $context;
-    } else {
-        $sitecontext = context_system::instance();
-    }
-
-    $options = new stdClass;
-    $options->blogs = !empty($CFG->enableblogs) &&
-                        ($CFG->bloglevel == BLOG_GLOBAL_LEVEL ||
-                        ($CFG->bloglevel == BLOG_SITE_LEVEL and ($isloggedin and !$isguestuser)))
-                        && has_capability('moodle/blog:view', $sitecontext);
-
-    $options->notes = !empty($CFG->enablenotes) && has_any_capability(array('moodle/notes:manage', 'moodle/notes:view'), $context);
-
-    // Frontpage settings?
-    if ($isfrontpage) {
-        if ($course->id == SITEID) {
-            $options->participants = has_capability('moodle/site:viewparticipants', $sitecontext);
-        } else {
-            $options->participants = has_capability('moodle/course:viewparticipants', context_course::instance($course->id));
-        }
-
-        $options->badges = !empty($CFG->enablebadges) && has_capability('moodle/badges:viewbadges', $sitecontext);
-        $options->tags = !empty($CFG->usetags) && $isloggedin;
-        $options->search = !empty($CFG->enableglobalsearch) && has_capability('moodle/search:query', $sitecontext);
-        $options->calendar = $isloggedin;
-    } else {
-        $options->participants = has_capability('moodle/course:viewparticipants', $context);
-        $options->badges = !empty($CFG->enablebadges) && !empty($CFG->badges_allowcoursebadges) &&
-                            has_capability('moodle/badges:viewbadges', $context);
-    }
-    return $options;
-}
-
-/**
- * Return an object with the list of administration options in a course that are available or not for the current user.
- * This function also handles the frontpage settings.
- *
- * @param  stdClass $course  course object (for frontpage it should be a clone of $SITE)
- * @param  stdClass $context context object (course context)
- * @return stdClass          the administration options in a course and their availability status
- * @since  Moodle 3.2
- */
-function course_get_user_administration_options($course, $context) {
-    global $CFG;
-    $isfrontpage = $course->id == SITEID;
-
-    $options = new stdClass;
-    $options->update = has_capability('moodle/course:update', $context);
-    $options->filters = has_capability('moodle/filter:manage', $context) &&
-                        count(filter_get_available_in_context($context)) > 0;
-    $options->reports = has_capability('moodle/site:viewreports', $context);
-    $options->backup = has_capability('moodle/backup:backupcourse', $context);
-    $options->restore = has_capability('moodle/restore:restorecourse', $context);
-    $options->files = $course->legacyfiles == 2 and has_capability('moodle/course:managefiles', $context);
-
-    if (!$isfrontpage) {
-        $options->tags = has_capability('moodle/course:tag', $context);
-        $options->gradebook = has_capability('moodle/grade:manage', $context);
-        $options->outcomes = !empty($CFG->enableoutcomes) && has_capability('moodle/course:update', $context);
-        $options->badges = !empty($CFG->enablebadges);
-        $options->import = has_capability('moodle/restore:restoretargetimport', $context);
-        $options->publish = has_capability('moodle/course:publish', $context);
-        $options->reset = has_capability('moodle/course:reset', $context);
-        $options->roles = has_capability('moodle/role:switchroles', $context);
-
-        // Add view grade report is permitted.
-        $grades = false;
-        if (has_capability('moodle/grade:viewall', $context)) {
-            $grades = true;
-        } else if (!empty($course->showgrades)) {
-            $reports = core_component::get_plugin_list('gradereport');
-            if (is_array($reports) && count($reports) > 0) {  // Get all installed reports.
-                arsort($reports);   // User is last, we want to test it first.
-                foreach ($reports as $plugin => $plugindir) {
-                    if (has_capability('gradereport/'.$plugin.':view', $context)) {
-                        // Stop when the first visible plugin is found.
-                        $grades = true;
-                        break;
-                    }
-                }
-            }
-        }
-        $options->grades = $grades;
-    } else {
-        // Set default options to false.
-        $listofoptions = array('tags', 'gradebook', 'outcomes', 'badges', 'import', 'publish', 'reset', 'roles', 'grades');
-
-        foreach ($listofoptions as $option) {
-            $options->$option = false;
-        }
-    }
-
-    return $options;
-}
-
-/**
- * Validates course start and end dates.
- *
- * Checks that the end course date is not greater than the start course date.
- *
- * $coursedata['startdate'] or $coursedata['enddate'] may not be set, it depends on the form and user input.
- *
- * @param array $coursedata May contain startdate and enddate timestamps, depends on the user input.
- * @return mixed False if everything alright, error codes otherwise.
- */
-function course_validate_dates($coursedata) {
-
-    // If both start and end dates are set end date should be later than the start date.
-    if (!empty($coursedata['startdate']) && !empty($coursedata['enddate']) &&
-            ($coursedata['enddate'] < $coursedata['startdate'])) {
-        return 'enddatebeforestartdate';
-    }
-
-    // If start date is not set end date can not be set.
-    if (empty($coursedata['startdate']) && !empty($coursedata['enddate'])) {
-        return 'nostartdatenoenddate';
-    }
-
-    return false;
 }

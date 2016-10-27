@@ -4,7 +4,7 @@
 // (using portfolio/file.php) but still give them the 'return to where you were' link
 // to go back to their assignment, or whatever
 
-require(__DIR__.'/../../config.php');
+require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
 
 if (empty($CFG->enableportfolios)) {
     print_error('disabled', 'portfolio');
