@@ -41,3 +41,6 @@ wp-config.php
 wp-content/uploads
 wp-content/themes/pssa/bower_components
 wp-content/themes/pssa/node_modules
+
+# Aula Virtual
+aulavirtual/config.php
