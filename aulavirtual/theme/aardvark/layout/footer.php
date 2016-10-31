@@ -105,14 +105,3 @@ $haswikipedia = (!empty($PAGE->theme->settings->wikipedia));
     	</div>
 	</div>
 
-	<div class="footerlinks">
-	<p>
-	
-	<?php  
- echo html_writer::link('http://moodle.org/plugins/view.php?plugin=theme_aardvark', get_string('credit', 'theme_aardvark'));
- echo ' | ';
- echo html_writer::link('http://moodle.org', 'moodle.org');?> 
-    	</p>
-    	
-    
-	</div>
