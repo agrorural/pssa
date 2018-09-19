@@ -55,6 +55,9 @@ class Tribe__Events__Aggregator__Page {
 		add_action( 'current_screen', array( $this, 'action_request' ) );
 		add_action( 'init', array( $this, 'init' ) );
 
+		// check if the license is valid each time the page is accessed
+		add_action( 'tribe_aggregator_page_request', array( $this, 'check_for_license_updates' ) );
+
 		// filter the plupload default settings to remove mime type restrictions
 		add_filter( 'plupload_default_settings', array( $this, 'filter_plupload_default_settings' ) );
 
@@ -81,6 +84,7 @@ class Tribe__Events__Aggregator__Page {
 					'pm' => _x( 'PM', 'Meridian: pm', 'the-events-calendar' ),
 					'preview_timeout' => __( 'The preview is taking longer than expected. Please try again in a moment.', 'the-events-calendar' ),
 					'preview_fetch_error_prefix' => __( 'There was an error fetching the results from your import:', 'the-events-calendar' ),
+					'preview_fetch_warning_prefix' => __( 'A warning was generated while fetching the results from your import:', 'the-events-calendar' ),
 					'import_all' => __( 'Import All (%d)', 'the-events-calendar' ),
 					'import_all_no_number' => __( 'Import All', 'the-events-calendar' ),
 					'import_checked' => __( 'Import Checked (%d)', 'the-events-calendar' ),
@@ -99,7 +103,8 @@ class Tribe__Events__Aggregator__Page {
 					),
 					'debug' => defined( 'WP_DEBUG' ) && true === WP_DEBUG,
 				),
-				'default_settings' => Tribe__Events__Aggregator__Settings::instance()->get_all_default_settings(),
+				'default_settings' => tribe( 'events-aggregator.settings' )->get_all_default_settings(),
+				'source_origin_regexp' => tribe( 'events-aggregator.settings' )->get_source_origin_regexp(),
 			),
 		);
 
@@ -109,6 +114,13 @@ class Tribe__Events__Aggregator__Page {
 		 * @param array $mapping Mapping data indexed by CSV import type
 		 */
 		$localize_data['data']['csv_column_mapping'] = apply_filters( 'tribe_aggregator_csv_column_mapping', $localize_data['data']['csv_column_mapping'] );
+
+		/**
+		 * filters the whole array that will be localized for event aggregator.
+		 *
+		 * @param array $localize_data
+		 */
+		$localize_data['data'] = apply_filters( 'tribe_aggregator_localized_data', $localize_data['data'] );
 
 		// Load these on all the pages
 		tribe_assets( $plugin,
@@ -122,7 +134,8 @@ class Tribe__Events__Aggregator__Page {
 						'underscore',
 						'tribe-bumpdown',
 						'tribe-dependency',
-						'tribe-events-select2',
+						'tribe-select2',
+						'tribe-events-admin',
 						'tribe-ea-facebook-login',
 					),
 				),
@@ -187,7 +200,22 @@ class Tribe__Events__Aggregator__Page {
 	 * @return boolean
 	 */
 	public function is_screen() {
-		return Tribe__Admin__Helpers::instance()->is_screen( $this->ID );
+		return ! empty( $this->ID ) && Tribe__Admin__Helpers::instance()->is_screen( $this->ID );
+	}
+
+	/**
+	 * Checks if the license is still valid once the aggregator page
+	 * is accessed.
+	 *
+	 * @since 4.6.19
+	 *
+	 * @return void
+	 */
+	public function check_for_license_updates() {
+
+		$aggregator = tribe( 'events-aggregator.main' );
+		$aggregator->pue_checker->check_for_updates();
+
 	}
 
 	/**
@@ -352,7 +380,7 @@ class Tribe__Events__Aggregator__Page {
 			return false;
 		}
 
-		$aggregator = Tribe__Events__Aggregator::instance();
+		$aggregator = tribe( 'events-aggregator.main' );
 
 		if ( ! $aggregator->is_service_active() ) {
 			return false;

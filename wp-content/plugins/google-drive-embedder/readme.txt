@@ -1,9 +1,9 @@
 === Plugin Name ===
-Contributors: danlester
-Tags: drive, google, document, google apps, google drive, sso, single-sign-on, auth, intranet, embed
-Requires at least: 3.5
-Tested up to: 4.6
-Stable tag: 3.8.5
+Contributors: levertechadmin, danlester
+Tags: drive, google, document, google apps, g suite, google drive, sso, auth, intranet, embed
+Requires at least: 4.0
+Tested up to: 4.9
+Stable tag: 4.2
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -17,9 +17,9 @@ Documents can be embedded in-line, using Google's read-only interactive viewer f
 
 You will need to set document sharing settings to ensure your website viewers have access to view your documents (e.g. at least 'anyone with the link can view' to be visible to all visitors).
 
-**This plugin requires that you also install the free (or premium) version of the popular [Google Apps Login](http://wp-glogin.com/wpgoogleappslogin) plugin**
+**This plugin requires that you also install the free (or premium/enterprise) version of the popular [Google Apps Login](http://wp-glogin.com/wpgoogleappslogin) plugin**
 
-Displays many file types such as PDF, Word DOC, ZIP etc plus native Google docs (Spreadsheet, Drawing, etc). Step through a list of your Drive files or search to find the one you're looking for.
+Displays many file types such as PDF, Word DOC, ZIP, Videos, Images etc plus native Google docs (Spreadsheet, Drawing, Forms, etc). Step through a list of your Drive files or search to find the one you're looking for.
 
 Choose from:
  
@@ -30,7 +30,7 @@ Choose from:
 Useful for public websites or private intranets (all visitors should be able to view files as long as sharing settings are 'anyone with the link can view' or higher in Google Drive). 
 Works on all WordPress installations including multisite networks.
 
-Please note that to embed folders, forms, images, and videos you will require the Premium or Enterprise version of this plugin.
+Please note that to embed folders you will require the Premium or Enterprise version of this plugin.
 
 [youtube http://www.youtube.com/watch?v=wcpjcFJIOko]
 
@@ -40,10 +40,9 @@ You can also purchase the premium or enterprise versions of Google Drive Embedde
 
 The **Premium version** contains some important extra features:
 
-* Google Calendars: pick from your Google Calendars and provide download links to ICAL or XML, or embed them directly in your site.
-* Google Docs export: provide links to downloadable versions of Google Docs, e.g. Spreadsheets exported as PDF or Excel.
+* Browse My Drive, Recent Files, Starred, and Shared With Me tabs to locate Drive files the way you're used to.
 * Embed Folders: simply keep your Google Drive folder up-to-date with your files, and your staff or website visitors will always be able to view a list of the latest documents.
-* Embed Images, Videos, and Forms: serve them directly from Google Drive, respecting your Google sharing settings.
+* Google Calendars: pick from your Google Calendars and provide download links to ICAL or XML, or embed them directly in your site.
 * Support and updates for one year.
 
 [Premium - See details and purchase](http://wp-glogin.com/drive/?utm_source=Drive%20ReadmePromo&utm_medium=freemium&utm_campaign=Freemium)
@@ -56,7 +55,7 @@ This means you no longer need to manage Drive and your Intranet as two completel
 It also introduces advanced *interactive embedded folders*, where users can preview files and drill-down into subfolders all without 
 leaving your site.
 
-It also contains all the features of the basic and premium versions.
+It also contains all the features of the basic and premium versions, plus support for *Team Drives*.
 
 [Enterprise - Find out more](http://wp-glogin.com/drive/enterprise/?utm_source=Drive%20ReadmeEntPromo&utm_medium=freemium&utm_campaign=Freemium)
 
@@ -64,13 +63,14 @@ It also contains all the features of the basic and premium versions.
 
 Google Drive document embedding and one-click login will work for the following domains and user accounts:
 
-*  Google Apps for Work
-*  Google Apps for Business
-*  Google Apps for Education
-*  Google Apps for Non-profits
+*  G Suite Basic (Google Apps for Work)
+*  G Suite Business (Google Apps Unlimited for Work)
+*  G Suite for Education (Google Apps for Education)
+*  G Suite for Non-profits (Google Apps for Non-profits)
+*  G Suite for Government (Google Apps for Government)
 *  Personal gmail.com and googlemail.com emails
 
-Google Apps Login plugin setup requires you to have admin access to any Google Apps domain, or a regular Gmail account, to register and
+Google Apps Login plugin setup requires you to have admin access to any G Suite domain (formerly Google Apps), or a regular Gmail account, to register and
 obtain two simple codes from Google.
 
 = Google Apps Login =
@@ -82,7 +82,7 @@ they can simply click their way through the Wordpress login screen - no username
 
 Full support and premium features are also available for purchase:
 
-Eliminate the need for Google Apps domain admins to  separately manage WordPress user accounts, and get peace 
+Eliminate the need for G Suite / Google Apps domain admins to  separately manage WordPress user accounts, and get peace
 of mind that only authorized employees have access to the organizations's websites and intranet.
 
 **See [http://wp-glogin.com/](http://wp-glogin.com/?utm_source=Drive%20Readme&utm_medium=freemium&utm_campaign=Freemium)**
@@ -222,7 +222,7 @@ You can purchase a license here:
 = What are the system requirements? =
 
 *  PHP 5.2.x or higher with Curl and JSON extensions
-*  Wordpress 3.3 or above
+*  Wordpress 4.0 or above
 
 And you will need a Google account to set up the Google Apps Login plugin.
 
@@ -258,90 +258,39 @@ or upload the ZIP file directly in the Plugins section of your Wordpress admin
 or upload the ZIP file directly in the Plugins section of your Wordpress admin
 1. Follow the instructions to configure the Google Apps Login plugin post-installation
 
-== Shortcodes ==
-
-Attribute options for [google-drive-embed ...] shortcode
-
-**Important: please note that you cannot normally switch the style attributes around while keeping the url the same.
-Most often, Google will require a different URL for the new link type, which can be obtained by opening the Drive Embedder dialog
-box again.**
-
-= url (required) =
-
-The url pointing to the Drive file or resource. Note that most Google Drive files will required a different URL 
-depending on the style and other factors below.
-
-= style (defaults to 'normal') =
-
-Values: normal | download | embed
-
-= newwindow (defaults to 'no') =
-
-Values: yes | no
-
-Only relevant when style='normal'
-
-= width/height =
-
-Dimensions of the iframe to be ebedded.
-Only relevant when style='embed'.
-Specified in pixels or as a percentage, e.g. '400' or '100%'.
-
-= plain (defaults to 'no') =
-
-Values: yes | no
-
-When set to 'yes', will NOT display the icon specified in "icon" below.
-Only relevant when style='normal' or 'download'.
-
-= icon =
-
-URL to an icon file to display next to the link.
-Only relevant when style='normal' or 'download'; and when plain not set to "yes".
-
-= extra =
-
-Values: folder | image | calendar
-
-Used by the premium plugin only for these special file types.
-
-= title =
-
-Text to display within the link to a 'normal' or 'download' file.
-
-= scrolling =
-
-Add scrolling="yes" to turn on scrolling within an iframe embed - especially useful for forms which otherwise might be cut off at the bottom.
-
-= allowfullscreen =
-
-The default for iframe style embeds is to have allowfullscreen as a default attribute so the
-viewer can click into full screen mode if available for that file type.
-
-Add allowfullscreen="no" as a shortcode parameter to turn this off.
-
-
-= CSS =
-
-You can use custom CSS styles to affect some of the final results.
-
-Example html code for style='download' or 'normal':
-
-&lt;p&gt;&lt;span class="gdm-drivefile-embed"&gt;&lt;img src="$icon" width="16" height="16" /&gt; &lt;a href="$url"&gt;$title&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
-
-Example html code for style='download' or 'normal', when plain='yes':
-
-&lt;a href="$url"&gt;$title&lt;/a&gt;
-
-Example html code for style='embed':
-
-&lt;iframe width='$width' height='$height' frameborder='0' scrolling='no' src='$url'&gt;&lt;/iframe&gt;
-
-
-Please get in touch if you would like to make suggestions for further CSS configurability - email contact@wp-glogin.com.
-
-
 == Changelog ==
+
+= 4.2 =
+
+Compatibility for Gutenberg Editor
+
+= 4.1 =
+
+No longer asks user for Drive permissions when they 'Login with Google'. Instead, it asks for Drive
+permissions only when they come to interact with the Drive functionality (clicking 'Add Google File' for example).
+
+= 4.0 =
+
+Free version now supports videos, images, and forms.
+
+Changed to Google Drive API v3.
+
+= 3.9.7 =
+
+Some file titles were not being escaped correctly ([ and ] characters) so could cause WordPress to parse the shortcode incorrectly.
+
+= 3.9.2 =
+
+Fix to match a change made by Google in the way their API works.
+
+= 3.9.1 =
+
+Some users were seeing warning messages about a missing variable - now fixed.
+
+= 3.9 =
+
+Updated readme to reflect new G Suite naming.
+Some internal code refactoring bringing up to date with Premium/Enterprise versions.
 
 = 3.8.5 =
 

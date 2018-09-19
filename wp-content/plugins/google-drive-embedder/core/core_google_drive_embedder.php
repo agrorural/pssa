@@ -25,28 +25,28 @@ class core_google_drive_embedder {
 		global $wp_version;
 		$output = '';
 		
-		if ( version_compare( $wp_version, '3.5', '<' ) ) {
-			$img = '<img src="' . $this->my_plugin_url() . 'images/gdm-media.png" alt="Add Google File"/>';
-			$output = '<a href="#TB_inline?width=700&height=484&inlineId=gdm-choose-drivefile" id="gdm-thickbox-trigger" class="thickbox" title="Add Google file">' . $img . '</a>';
-		} else {
-			$img = '<span class="wp-media-buttons-icon" id="gdm-media-button"></span>';
-			$output = '<a href="#TB_inline?width=700&height=484&inlineId=gdm-choose-drivefile" id="gdm-thickbox-trigger" class="thickbox button" title="Add Google File" style="padding-left: .4em;">'
-					  .$img.' Add Google File</a>';
-		}
+        $img = '<span class="wp-media-buttons-icon" id="gdm-media-button"></span>';
+        $output = '<a href="#TB_inline?width=700&height=484&inlineId=gdm-choose-drivefile" id="gdm-thickbox-trigger" class="thickbox button" title="Add Google File" style="padding-left: .4em;">'
+                  .$img.' Add Google File</a>';
 		echo $output;
 	}
 
     public function gdm_register_scripts() {
         $extra_js_name = $this->get_extra_js_name();
-        wp_register_script( 'gdm_simple_browser_js', $this->my_plugin_url().'js/gdm-simple-browser.js');
+        wp_register_script( 'gdm_simple_browser_js', $this->my_plugin_url().'js/gdm-simple-browser.js', array(), $this->PLUGIN_VERSION);
         if ($extra_js_name != 'basic') {
-            wp_register_script( 'gdm_premium_drive_browser_js', $this->my_plugin_url().'js/gdm-premium-drive-browser.js', array('gdm_simple_browser_js') );
+            wp_register_script( 'gdm_premium_drive_browser_js', $this->my_plugin_url().'js/gdm-premium-drive-browser.js', array('gdm_simple_browser_js'), $this->PLUGIN_VERSION );
         }
-        wp_register_script( 'gdm_base_servicehandler_js', $this->my_plugin_url().'js/gdm-base-servicehandler.js', ($extra_js_name != 'basic' ? array('gdm_premium_drive_browser_js') : array() ));
-        wp_register_script( 'gdm_'.$extra_js_name.'_drivefile_js', $this->my_plugin_url().'js/gdm-'.$extra_js_name.'-drivefile.js', array('jquery') );
-        wp_register_script( 'gdm_choose_drivefile_js', $this->my_plugin_url().'js/gdm-choose-drivefile.js', array('jquery', 'gdm_simple_browser_js', 'gdm_base_servicehandler_js', 'gdm_'.$extra_js_name.'_drivefile_js') );
+		
+	    wp_register_script( 'gdm_colorbox_js', $this->my_plugin_url().'js/jquery.colorbox.js', array('jquery'), $this->PLUGIN_VERSION );
+	    wp_register_style( 'gdm_colorbox_css', $this->my_plugin_url().'css/gdm-colorbox.css', array(), $this->PLUGIN_VERSION );
+
+	    wp_register_script( 'gdm_base_servicehandler_js', $this->my_plugin_url().'js/gdm-base-servicehandler.js', ($extra_js_name != 'basic' ? array('gdm_premium_drive_browser_js') : array() ), $this->PLUGIN_VERSION);
+        wp_register_script( 'gdm_'.$extra_js_name.'_drivefile_js', $this->my_plugin_url().'js/gdm-'.$extra_js_name.'-drivefile.js', array('jquery'), $this->PLUGIN_VERSION );
+        wp_register_script( 'gdm_choose_drivefile_js', $this->my_plugin_url().'js/gdm-choose-drivefile.js',
+            array('jquery', 'gdm_simple_browser_js', 'gdm_base_servicehandler_js', 'gdm_'.$extra_js_name.'_drivefile_js', 'gdm_colorbox_js'), $this->PLUGIN_VERSION );
     }
-	
+ 
 	public function gdm_admin_load_scripts() {
         $this->gdm_register_scripts();
 		wp_localize_script( 'gdm_choose_drivefile_js', 'gdm_trans', $this->get_translation_array() );
@@ -55,8 +55,12 @@ class core_google_drive_embedder {
 		wp_enqueue_script( 'google-js-api', 'https://apis.google.com/js/client.js?onload=gdmHandleGoogleJsClientLoad', array('gdm_choose_drivefile_js') );
 
 		wp_enqueue_style( 'gdm_choose_drivefile_css', $this->my_plugin_url().'css/gdm-choose-drivefile.css' );
+
 		wp_enqueue_script( 'thickbox' );
 		wp_enqueue_style( 'thickbox' );
+
+		wp_enqueue_script( 'gdm_colorbox_js' );
+		wp_enqueue_style( 'gdm_colorbox_css' );
 	}
 	
 	protected function get_translation_array() {
@@ -76,26 +80,20 @@ class core_google_drive_embedder {
 	protected function get_extra_js_name() {
 		return '';
 	}
+
+	protected function extra_drive_tabs() {
+		?>
+        <a href="#allfiles" id="allfiles-tab" class="nav-tab nav-tab-active">All Files</a>
+        <a href="#calendar" id="calendar-tab" class="nav-tab">+</a>
+		<?php
+	}
 	
 	public function gdm_admin_footer() {
 		?>
 		<div id="gdm-choose-drivefile" style="display: none;">
 			<h3 id="gdm-tabs" class="nav-tab-wrapper">
 			<?php
-			if ($this->get_extra_js_name() == 'basic') {
-			?>
-				<a href="#allfiles" id="allfiles-tab" class="nav-tab nav-tab-active">All Files</a>
-                <a href="#calendar" id="calendar-tab" class="nav-tab">+</a>
-			<?php
-			}
-			else {
-			?>
-				<a href="#drive" id="drive-tab" class="nav-tab nav-tab-active">My Drive</a>
-				<a href="#recent" id="recent-tab" class="nav-tab">Recent</a>
-				<a href="#allfiles" id="allfiles-tab" class="nav-tab">All Files</a>
-				<a href="#calendar" id="calendar-tab" class="nav-tab">Calendar</a>
-			<?php
-			}
+                $this->extra_drive_tabs();
 			?>
 			</h3>
 			
@@ -198,10 +196,34 @@ class core_google_drive_embedder {
 				<?php $this->admin_footer_extra(); ?>
 				
 				<p class="submit">
-					<input type="button" id="gdm-insert-drivefile" class="button-primary" 
+				<script>
+					if (typeof enable_append_btn === 'function') {
+						//alert('loaded');
+					}
+					else{
+						//alert("not loaded");
+						function enable_append_btn(){}
+						function close_insert_popup(){
+							tb_remove();
+						}
+					}
+					</script>
+				</script>
+				<?php
+					/*if(function_exists('the_gutenberg_project')){
+						echo "yes";
+						echo $need_function;
+					}else{
+						echo "no";
+						echo $need_function;
+					}*/
+				?>
+					<input type="button" id="gdm-insert-drivefile" class="button-primary" onclick="enable_append_btn();"
 							value="Insert File" disabled="disabled" />
-					<a id="gdm-cancel-drivefile-insert" class="button-secondary" onclick="tb_remove();" title="Cancel">Cancel</a>
-					
+					<!-- <a id="gdm-cancel-drivefile-insert" class="button-secondary" onclick="tb_remove();" title="Cancel">Cancel</a> -->
+					<a id="gdm-cancel-drivefile-insert" class="button-secondary" onclick="close_insert_popup();" title="Cancel">Cancel</a>
+						<!-- hidden field for the new test -->
+					<input type="hidden" id="btn_classname_gde_editor" value="" />
 					<span id="gdm-ack-owner-editor" style="display: none;">
 					<input type="checkbox" id="gdm-ack-owner-editor-checkbox" class="gdm-ack-owner-editor" />
 					<label for="gdm-ack-owner-editor-checkbox">I acknowledge that I will be demoted from owner to editor</label>
@@ -238,6 +260,7 @@ class core_google_drive_embedder {
 	// SHORTCODES
 	
 	public function gdm_shortcode_display_drivefile($atts, $content=null) {
+		
 		if (!isset($atts['url'])) {
 			return '<b>google-drive-embed requires a url attribute</b>';
 		}
@@ -246,6 +269,8 @@ class core_google_drive_embedder {
 		
 		$linkstyle = isset($atts['style']) && in_array($atts['style'], Array('normal', 'plain', 'download', 'embed')) 
 						? $atts['style'] : 'normal';
+		$extra = isset($atts['extra']) ? $atts['extra'] : '';
+
 		$returnhtml = '';
 		switch ($linkstyle) {
 			case 'normal':
@@ -267,9 +292,23 @@ class core_google_drive_embedder {
 			case 'embed':
 				$width = isset($atts['width']) ? $atts['width'] : '100%';
 				$height = isset($atts['height']) ? $atts['height'] : '400';
-				$scrolling = isset($atts['scrolling']) && strtolower($atts['scrolling']) == 'yes' ? 'yes' : 'no';
+				$scrolling = isset($atts['scrolling']) && strtolower($atts['scrolling']) == 'no' ? 'no' : 'yes';
 				$allowfullscreen = isset($atts['allowfullscreen']) && strtolower($atts['allowfullscreen']) == 'no' ? '' : 'allowfullscreen';
 				$returnhtml = "<iframe width='${width}' height='${height}' frameborder='0' scrolling='${scrolling}' src='${url}' ${allowfullscreen}></iframe>";
+
+				if ($extra == 'image') {
+					$width = isset($atts['width']) ? $atts['width'] : '';
+					$height = isset($atts['height']) ? $atts['height'] : '';
+					$sizeattrs = '';
+					if ($width) {
+						$sizeattrs .= " width=\"${width}\"";
+					}
+					if ($height) {
+						$sizeattrs .= " height=\"${height}\"";
+					}
+					$returnhtml = "<img src=\"${url}\"${sizeattrs} />";
+                }
+
 				break;
 		}
 		if (!is_null($content)) {
@@ -465,6 +504,19 @@ class core_google_drive_embedder {
 	}
 	
 	// ADMIN
+
+    public function gdm_init() {
+	    add_shortcode( 'google-drive-embed', Array($this, 'gdm_shortcode_display_drivefile') );
+
+	    // Gutenberg block
+	    /*if (function_exists('register_block_type')) {
+		    register_block_type( 'gdm/google-drive-embedder-viewer', array(
+			    'render_callback' => array($this, 'gdm_shortcode_display_drivefile')
+		    ) );
+	    }*/
+
+	    add_action( 'enqueue_block_assets', array($this, 'gutenberg_enqueue_block_assets') );
+    }
 	
 	public function gdm_admin_init() {
 		register_setting( $this->get_options_pagename(), $this->get_options_name(), Array($this, 'gdm_options_validate') );
@@ -485,6 +537,8 @@ class core_google_drive_embedder {
 			add_action( 'media_buttons', Array($this, 'gdm_media_button'), 11 );
 			add_action( 'admin_enqueue_scripts', Array($this, 'gdm_admin_load_scripts') );
 			add_action( 'admin_footer', Array($this, 'gdm_admin_footer') );
+
+			add_action( 'enqueue_block_editor_assets', array($this, 'gutenberg_enqueue_block_editor_assets') );
 		}		
 	}
 	
@@ -501,9 +555,14 @@ class core_google_drive_embedder {
 
 
 	protected function add_actions() {
-		add_filter('gal_gather_scopes', Array($this, 'gdm_gather_scopes') );
-		
-		add_shortcode( 'google-drive-embed', Array($this, 'gdm_shortcode_display_drivefile') );
+	    /* No longer want to request access to scopes through 'Login with Google'.
+        * Now wait until the user clicks 'Add Google File' or accesses a folder.
+        * This is best practice, and also defers any 'Invalid Scope' error further down the chain
+        * so it is clearly a 'Drive' issue.
+		* add_filter('gal_gather_scopes', Array($this, 'gdm_gather_scopes') );
+	    */
+
+		add_action( 'init', array($this, 'gdm_init'), 5, 0 );
 		
 		if (is_admin()) {
 			add_action( 'admin_init', array($this, 'gdm_admin_init'), 5, 0 );
@@ -514,6 +573,33 @@ class core_google_drive_embedder {
 				add_action('network_admin_edit_'.$this->get_options_menuname(), array($this, 'gdm_save_network_options'));
 			}
 		}
+	}
+
+	// Gutenberg enqueues
+
+	function gutenberg_enqueue_block_editor_assets() {
+		wp_enqueue_script(
+			'gdm-gutenberg-block-js', // Unique handle.
+			$this->my_plugin_url(). 'js/gdm-blocks.js',
+			array( 'wp-blocks', 'wp-i18n', 'wp-element' ), // Dependencies, defined above.
+			$this->PLUGIN_VERSION
+		);
+
+		wp_enqueue_style(
+			'gdm-gutenberg-block-css', // Handle.
+			$this->my_plugin_url(). 'css/gdm-blocks.css', // editor.css: This file styles the block within the Gutenberg editor.
+			array( 'wp-edit-blocks' ), // Dependencies, defined above.
+			$this->PLUGIN_VERSION
+		);
+	}
+
+	function gutenberg_enqueue_block_assets() {
+		wp_enqueue_style(
+			'gdm-gutenberg-block-backend-js', // Handle.
+			$this->my_plugin_url(). 'css/gdm-blocks.css', // style.css: This file styles the block on the frontend.
+			array( 'wp-blocks' ), // Dependencies, defined above.
+			$this->PLUGIN_VERSION
+		);
 	}
 
 }

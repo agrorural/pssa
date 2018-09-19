@@ -44,7 +44,13 @@
 	bottom: 15px;
 	display: block;
 	position: absolute;
-	width: 123px;
+}
+#tribe-app-shop .tribe-addon .button-disabled {
+	padding-left: 3px;
+}
+#tribe-app-shop .tribe-addon .button-disabled .dashicons {
+	font-size: 28px;
+	padding-right: 9px;
 }
 #tribe-app-shop .tribe-addon .caption {
 	padding: 0 15px 45px 15px;
@@ -74,4 +80,7 @@
 	float: left;
 	height: 228px;
 	width: 300px;
+}
+#tribe-app-shop .tribe-installed-headline {
+	margin-bottom: 20px;
 }

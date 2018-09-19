@@ -425,10 +425,16 @@ class core_google_apps_login {
 		return $this->_final_redirect;
 	}
 	
-	public function ga_login_redirect($redirect_to, $request_from, $user) {
+	public function ga_login_redirect($redirect_to, $request_from='', $user=null) {
 		if ($user && !is_wp_error($user)) {
 			$final_redirect = $this->getFinalRedirect();
 			if ($final_redirect !== '') {
+				$option = $this->get_option_galogin();
+				// Whitelist the subdomain if all auth is going through the top level domain's wp-login.php
+				if (is_multisite() && !$option['ga_ms_usesubsitecallback']) {
+					$this->add_allowed_redirect_host($final_redirect);
+					add_filter('allowed_redirect_hosts', array($this,'gal_allowed_redirect_hosts'), 10);
+				}
 				return $final_redirect;
 			}
 		}
@@ -443,7 +449,8 @@ class core_google_apps_login {
 			}
 		}
 		if (!isset($_COOKIE[self::$gal_cookie_name]) && apply_filters('gal_set_login_cookie', true)) {
-			setcookie(self::$gal_cookie_name, $this->get_cookie_value(), time()+36000, '/', defined(COOKIE_DOMAIN) ? COOKIE_DOMAIN : '' );
+			$secure = ( 'https' === parse_url( $this->get_login_url(), PHP_URL_SCHEME ) );
+			setcookie(self::$gal_cookie_name, $this->get_cookie_value(), 0, '/', defined('COOKIE_DOMAIN') ? COOKIE_DOMAIN : '', $secure );
 		}
 	}
 	
@@ -460,6 +467,45 @@ class core_google_apps_login {
 		}
 
 		return apply_filters( 'gal_login_url', $login_url );
+	}
+
+	protected $allowed_redirect_hosts = array();
+	// In multisite, add subdomains to allowed_redirect_hosts so redirect_to can work for them
+	public function gal_allowed_redirect_hosts($hosts) {
+		return array_merge($hosts, $this->allowed_redirect_hosts);
+	}
+
+	protected function add_allowed_redirect_host($location) {
+		if (!is_multisite()) {
+			return;
+		}
+
+		if (!defined('SUBDOMAIN_INSTALL') || !SUBDOMAIN_INSTALL) {
+			return;
+		}
+
+		$location = trim( strtolower($location) );
+		// browsers will assume 'http' is your protocol, and will obey a redirect to a URL starting with '//'
+		if ( substr($location, 0, 2) == '//' )
+			$location = 'http:' . $location;
+
+		// In php 5 parse_url may fail if the URL query part contains http://, bug #38143
+		$test = ( $cut = strpos($location, '?') ) ? substr( $location, 0, $cut ) : $location;
+
+		// @-operator is used to prevent possible warnings in PHP < 5.3.3.
+		$lp = @parse_url($test);
+
+		// Give up if malformed URL
+		if ( false === $lp )
+			return;
+
+		$sites = get_sites(
+			array('domain' => $lp['host'])
+		);
+
+		if (count($sites) > 0) {
+			$this->allowed_redirect_hosts[] = $lp['host'];
+		}
 	}
 	
 	// Build our own nonce functions as wp_create_nonce is user dependent,
@@ -1173,7 +1219,13 @@ class core_google_apps_login {
 		$client->setApplicationName("Wordpress Site");
 		return $client;
 	}
-	
+
+	public function get_sa_admin_email() {
+		$options = $this->get_option_galogin();
+		return isset($options['ga_domainadmin']) ? $options['ga_domainadmin'] : '';
+	}
+
+
 	// PLUGINS PAGE
 	
 	public function ga_plugin_action_links( $links, $file ) {

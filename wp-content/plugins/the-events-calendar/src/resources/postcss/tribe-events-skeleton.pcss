@@ -133,10 +133,10 @@ div.tribe-events-notices > ul > li {
 }
 
 /* IE7 Tweaks */
-* + html .events-archive h2.tribe-events-page-title {
+* + html .events-archive .tribe-events-page-title {
 	padding-bottom: 30px;
 }
-* + html .events-archive .tribe-events-list h2.tribe-events-page-title {
+* + html .events-archive .tribe-events-list .tribe-events-page-title {
 	padding-bottom: 0;
 }
 * + html #tribe-events-header {
@@ -144,25 +144,26 @@ div.tribe-events-notices > ul > li {
 }
 
 /* General Template Headers */
-h2.tribe-events-page-title {
+.tribe-events-page-title {
 	position: relative;
 	z-index: 0;
 	text-align: center;
-}
 
-/* don't float on filter view */
-.tribe-events-filter-view  .tribe-events-list h2.tribe-events-page-title {
-	width: 100%;
-	float: none;
-}
+	/* don't float on filter list view */
+	.tribe-events-filter-view.events-list & {
+		width: 100%;
+		float: none;
+	}
 
-h2.tribe-events-page-title a {
-	color: #000;
-}
-h2.tribe-events-page-title a:hover,
-h2.tribe-events-page-title a:focus {
-	color: #333;
-	text-decoration: underline;
+	a {
+		color: #000;
+
+		&:hover,
+		&:focus {
+			color: #333;
+			text-decoration: underline;
+		}
+	}
 }
 
 /* General Template Header/Footer Nav */
@@ -271,7 +272,7 @@ select.tribe-events-dropdown {
 /* = Day Grid Template Styles
    @ Template: day.php
 =============================================*/
-.tribe-events-day .tribe-events-day-time-slot h5 {
+.tribe-events-day .tribe-events-day-time-slot .tribe-events-day-time-slot-heading {
 	text-transform: uppercase;
 	font-weight: bold;
 	font-size: 14px;
@@ -296,9 +297,6 @@ select.tribe-events-dropdown {
 /* = List View Template Styles
    @ Template: list.php
 =============================================*/
-.tribe-events-list h2.tribe-events-page-title {
-	margin-bottom: 15px;
-}
 
 #tribe-events-content.tribe-events-list {
 	margin-bottom: 60px;
@@ -308,7 +306,7 @@ select.tribe-events-dropdown {
 	padding-top: 0;
 }
 
-.tribe-events-list .type-tribe_events h2 {
+.tribe-events-list .type-tribe_events .tribe-events-list-event-title {
 	padding: 0;
 	line-height: 1.2;
 }
@@ -461,27 +459,11 @@ select.tribe-events-dropdown {
 }
 
 /* Map */
-.single-tribe_events .tribe-events-venue-map {
-	width: 63%;
-	float: right;
-}
 
-.single-tribe_events #tribe-events-gmap {
-	height: 0 !important;
-	padding-top: 50%;
-	width: 100% !important;
-	margin: 0 !important;
-}
 .single-tribe_events .tribe-events-meta-group .tribe-events-venue-map {
 	float: none;
 	margin: 0;
 	width: 100%;
-}
-.single-tribe_events .tribe-events-meta-group #tribe-events-gmap {
-	height: 0 !important;
-	padding-top: 100%;
-	width: 100% !important;
-	margin-top: 50px;
 }
 
 .tribe-events-event-meta:first-child {
@@ -529,7 +511,7 @@ select.tribe-events-dropdown {
 }
 
 #tribe-events-content .tribe-events-calendar td {
-	height: 110px;
+	height: 145px;
 	width: 14.28%;
 	vertical-align: top;
 	padding: 0 0 .5em;
@@ -540,6 +522,7 @@ select.tribe-events-dropdown {
 /* Global Tooltips */
 .tribe-events-calendar .tribe-events-tooltip,
 .tribe-events-week .tribe-events-tooltip,
+.tribe-events-shortcode.view-week .tribe-events-tooltip,
 .recurring-info-tooltip {
 	border: 1px solid #666;
 	position: absolute;
@@ -567,6 +550,7 @@ select.tribe-events-dropdown {
 }
 .tribe-events-calendar .tribe-events-right .tribe-events-tooltip,
 .tribe-events-week .tribe-events-right .tribe-events-tooltip,
+.tribe-events-shortcode.view-week .tribe-events-right .tribe-events-tooltip,
 .recurring-info-tooltip {
 	left: auto;
 	right: 3px;
@@ -575,6 +559,14 @@ select.tribe-events-dropdown {
 	left: auto;
 	right: 30px;
 }
+/** For when a tooltip is near top edge of viewport, so displays below event title instead of above it. */
+.tribe-events-tooltip.tribe-events-tooltip-flipdown {
+	.tribe-events-arrow {
+		top: -11px;
+		transform: rotate(180deg);
+	}
+}
+
 
 /* Recurring info tooltip */
 .recurringinfo {
@@ -600,15 +592,18 @@ select.tribe-events-dropdown {
 	padding: 6px 8px;
 	border-bottom: 1px solid #e7e7e7;
 }
+
 .events-archive.events-gridview #tribe-events-content table .tribe-events-last {
 	border-bottom: 0;
 }
+
 .tribe-events-viewmore {
 	margin: 0 5%;
 	padding: 6px 8px;
 	font-weight: bold;
 	line-height: 1;
 }
+
 .tribe-events-calendar th {
 	width: 250px;
 	height: 10px;
@@ -617,6 +612,7 @@ select.tribe-events-dropdown {
 	text-transform: uppercase;
 	letter-spacing: 1px;
 }
+
 .tribe-events-calendar td div[id*='tribe-events-daynum-'] {
 	padding: 6px 9px;
 	line-height: 1.2;
@@ -705,32 +701,6 @@ select.tribe-events-dropdown {
 #tribe-bar-views .tribe-bar-view-select,
 #tribe-bar-views .tribe-bar-view-select ~ .tribe-select2 {
 	display: none;
-}
-#tribe-bar-views .tribe-select2 {
-	width: 108px !important;
-	float: left;
-}
-.tribe-select2-results .select2-results {
-	margin: 4px 0;
-	padding: 0;
-}
-.tribe-select2-results .select2-results .select2-result-label {
-	padding: 6px 8px;
-	color: #444;
-	line-height: 14px;
-}
-.tribe-select2-results .select2-results .select2-highlighted {
-	background: #ddd;
-	color: #444;
-}
-#tribe-bar-views .select2-container .select2-choice div {
-	width: 18px;
-}
-#tribe-bar-views .select2-container .select2-choice span {
-	margin-right: 18px;
-}
-#tribe-bar-views .select2-container .select2-choice span span {
-	margin-right: 0;
 }
 
 /* Views Select When Have Settings */

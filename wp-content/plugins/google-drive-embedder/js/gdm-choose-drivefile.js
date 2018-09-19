@@ -17,8 +17,11 @@ var gdmDriveMgr = (function($) {
 
         _serviceHandlerRegistry : {
             'allfiles' : gdmDriveServiceHandler,
+            'teamdrives' : gdmDriveServiceHandler,
             'drive' : gdmDriveServiceHandler,
             'recent' : gdmDriveServiceHandler,
+            'shared' : gdmDriveServiceHandler,
+            'starred' : gdmDriveServiceHandler,
             'calendar' : gdmCalendarServiceHandler
         },
 
@@ -37,8 +40,9 @@ var gdmDriveMgr = (function($) {
         makeApiCall: function () {
 
             if (!this.getServiceHandler().getAvailable()) {
-                this.fileBrowser.displayMessage('<p>Purchase the Premium or Enterprise version of Google Drive Embedder: <br />- Locate your files via <i>My Drive</i><br />'
-                    +'- Embed Calendars and new Drive file types<br /> '
+                this.fileBrowser.displayMessage('<p>Purchase the Premium or Enterprise version of Google Drive Embedder: <br />- Locate your files via <i>My Drive</i>, <i>Starred</i>, <i>Shared with Me</i> etc<br />'
+                    +'- Embed Calendars and iframe folders<br /> '
+                    +'- Browse and search your Team Drives (Enterprise)<br /> '
                     +'- Interactive embedded folders including drag-and-drop to upload (Enterprise)<br /> '
                     + '<a href="http://wp-glogin.com/drive/?utm_source=Calendar%20Reason&utm_medium=freemium&utm_campaign=Drive" target="_blank">Find out more</a></p>'
                 );
@@ -252,13 +256,36 @@ var gdmDriveMgr = (function($) {
                     }
                 }
 
+                /*var a = ('[google-drive-embed url="' + url + '" title="'
+                    + this.escapeHTML(links.title) + '"'
+                    + ' icon="' + icon + '"'
+                    + extraattrs
+                    + ' style="' + linkStyle + '"]');               
+                
+				var b = '"' + a + '"';*/
+					
+				var latest_classname = document.getElementById("gde_ins_btn_gb");
+										
+				if(latest_classname){
+					var latest_classname = document.getElementById("gde_ins_btn_gb").className;
+					var latest_classname = 'p.'+latest_classname;
+					
+					//alert(latest_classname);
+					jQuery( latest_classname ).text( '[google-drive-embed url="' + url + '" title="'
+                    + this.escapeHTML(links.title) + '"'
+                    + ' icon="' + icon + '"'
+                    + extraattrs
+                    + ' style="' + linkStyle + '"]');
+				}
+				
                 // Send to editor
                 window.send_to_editor('[google-drive-embed url="' + url + '" title="'
-                    + this.stripQuots(links.title) + '"'
+                    + this.escapeHTML(links.title) + '"'
                     + ' icon="' + icon + '"'
                     + extraattrs
                     + ' style="' + linkStyle + '"]');
 
+			
                 // Set file parent/owner in Enterprise version
                 if (this.getServiceHandler().allowSetEmbedOwnerParent()) {
                     gdmSetEmbedSAOwnerParent(id);
@@ -356,18 +383,16 @@ var gdmDriveMgr = (function($) {
             ">": "&gt;",
             '"': '&quot;',
             "'": '&#39;',
-            "/": '&#x2F;'
+            "/": '&#x2F;',
+            "[": '&#91;',
+            "]": '&#93;'
         },
 
         escapeHTML: function (str) {
             var self = this;
-            return String(str).replace(/[&<>"'\/]/g, function (s) {
+            return String(str).replace(/[&<>\]\["'\/]/g, function (s) {
                 return self.entityMap[s];
             });
-        },
-
-        stripQuots: function (str) {
-            return String(str).replace(/["]/g, "'");
         },
 
         showMoreOptions: function () {
@@ -589,6 +614,5 @@ jQuery(document).ready(function () {
 
     // Will only go ahead if client lib is also loaded
     gdmDriveMgr.init(gdmGetActiveTabName());
-
+	
 });
-
